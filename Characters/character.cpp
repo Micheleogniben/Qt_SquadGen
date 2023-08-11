@@ -33,27 +33,27 @@ unsigned short Character::getLifePoints()
 }
 
 // SET METHODS
-void Character::setPhyAtk(short amount)
+void Character::setPhyAtk(unsigned short amount)
 {
     stats.physicalAtk = amount < 0 ? 0 : amount > 10 ? 10 : amount;
 }
 
-void Character::setMagAtk(short amount)
+void Character::setMagAtk(unsigned short amount)
 {
     stats.magicAtk = amount < 0 ? 0 : amount > 10 ? 10 : amount;
 }
 
-void Character::setMagDef(short amount)
+void Character::setMagDef(unsigned short amount)
 {
     stats.magicDef = amount < 0 ? 0 : amount > 10 ? 10 : amount;
 }
 
-void Character::setPhyDef(short amount)
+void Character::setPhyDef(unsigned short amount)
 {
     stats.physicalDef = amount < 0 ? 0 : amount > 10 ? 10 : amount;
 }
 
-void Character::setLifePoints(short amount)
+void Character::setLifePoints(unsigned short amount)
 {
     stats.lifePoints = amount < 0 ? 0 : amount > 10 ? 10 : amount;
 }

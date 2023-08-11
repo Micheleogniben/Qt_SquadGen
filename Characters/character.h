@@ -28,11 +28,11 @@ public:
     unsigned short getMagDef();
     unsigned short getLifePoints();
 
-    void setPhyAtk(short);
-    void setMagAtk(short);
-    void setMagDef(short);
-    void setPhyDef(short);
-    void setLifePoints(short);
+    void setPhyAtk(unsigned short);
+    void setMagAtk(unsigned short);
+    void setMagDef(unsigned short);
+    void setPhyDef(unsigned short);
+    void setLifePoints(unsigned short);
 };
 
 #endif // CHARACTER_H
