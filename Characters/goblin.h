@@ -9,10 +9,11 @@ class Goblin : public Character
 private:
     unsigned short amount;
 public:
-    Goblin(unsigned short, unsigned short, unsigned short, unsigned short, unsigned short, unsigned short);
+    Goblin();
     void useAbility(Character*) override;
+    void setLifePoints(const unsigned short) override;
 
-    unsigned short getAmount();
+    unsigned short getAmount() const;
     void setAmount(unsigned short);
 };
 

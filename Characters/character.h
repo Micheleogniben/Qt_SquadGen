@@ -12,27 +12,32 @@ private:
           magicDef : 4,
           physicalDef : 4,
           speed : 4;
-      unsigned short lifePoints;
+      unsigned short lifePoints : 10;
     };
+
+    const unsigned short maxPS;
+    bool isDead;
 
     Statistics stats;
 public:
-    Character();
     Character(unsigned short, unsigned short, unsigned short, unsigned short, unsigned short, unsigned short);
 
     virtual void useAbility(Character*) = 0;
 
-    unsigned short getPhyAtk();
-    unsigned short getMagAtk();
-    unsigned short getPhyDef();
-    unsigned short getMagDef();
-    unsigned short getLifePoints();
+    unsigned short getPhyAtk() const;
+    unsigned short getMagAtk() const;
+    unsigned short getPhyDef() const;
+    unsigned short getMagDef() const;
+    unsigned short getLifePoints() const;
+    unsigned short getSpeed() const;
+    unsigned short getMaxPS() const;
 
-    void setPhyAtk(unsigned short);
-    void setMagAtk(unsigned short);
-    void setMagDef(unsigned short);
-    void setPhyDef(unsigned short);
-    void setLifePoints(unsigned short);
+    void setPhyAtk(const unsigned short);
+    void setMagAtk(const unsigned short);
+    void setMagDef(const unsigned short);
+    void setPhyDef(const unsigned short);
+    void setSpeed(const unsigned short);
+    virtual void setLifePoints(const unsigned short);
 };
 
 #endif // CHARACTER_H

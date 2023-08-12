@@ -7,7 +7,7 @@
 class Cleric : public Character
 {
 public:
-    Cleric(unsigned short, unsigned short, unsigned short, unsigned short, unsigned short, unsigned short);
+    Cleric();
     void useAbility(Character*) override;
 };
 

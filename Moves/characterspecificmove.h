@@ -1,7 +1,7 @@
 #ifndef CHARACTERSPECIFICMOVE_H
 #define CHARACTERSPECIFICMOVE_H
 
-#include <move.h>
+#include "move.h"
 
 class CharacterSpecificMove: public Move
 {

@@ -1,6 +1,8 @@
 #ifndef MOVE_H
 #define MOVE_H
 
+#include <string>
+
 class Move{
 private:
     std::string Name;
@@ -10,10 +12,10 @@ private:
 public:
     explicit Move(std::string, std::string, unsigned int, unsigned int);
     virtual ~Move() = 0;
-    const std::string getName();
-    const std::string getDescription();
-    const unsigned int getMagicDmg();
-    const unsigned int getPhysicalDmg();
+    std::string getName() const;
+    std::string getDescription() const;
+    unsigned int getMagicDmg() const;
+    unsigned int getPhysicalDmg() const;
 };
 
 #endif

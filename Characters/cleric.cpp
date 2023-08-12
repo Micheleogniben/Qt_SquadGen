@@ -1,9 +1,8 @@
 #include "cleric.h"
 
-Cleric::Cleric(unsigned short magAtk, unsigned short phyAtk, unsigned short magDef, unsigned short phyDef, unsigned short speed, unsigned short lifePts) :
-    Character(magAtk, phyAtk, magDef, phyDef, speed, lifePts) { };
+Cleric::Cleric() : Character(0, 1, 4, 1, 5, 50) { };
 
-void Cleric::useAbility(Character* target)
+void Cleric::useAbility(Character* teammate)
 {
-    target->setLifePoints(target->getLifePoints() + target->getLifePoints() * 0.20);
+    teammate->setLifePoints(teammate->getMaxPS() * 0.5);
 }

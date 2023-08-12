@@ -7,7 +7,7 @@
 class Dragon : public Character
 {
 public:
-    Dragon(unsigned short, unsigned short, unsigned short, unsigned short, unsigned short, unsigned short);
+    Dragon();
     void useAbility(Character*) override;
 };
 

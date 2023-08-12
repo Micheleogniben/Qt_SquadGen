@@ -1,7 +1,7 @@
 #ifndef TYPESPECIFICMOVE_H
 #define TYPESPECIFICMOVE_H
 
-#include <move.h>
+#include "move.h"
 
 class TypeSpecificMove:public Move
 {

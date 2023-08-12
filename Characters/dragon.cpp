@@ -1,8 +1,7 @@
 #include "dragon.h"
 #include "goblin.h"
 
-Dragon::Dragon(unsigned short magAtk, unsigned short phyAtk, unsigned short magDef, unsigned short phyDef, unsigned short speed, unsigned short lifePts) :
-    Character(magAtk, phyAtk, magDef, phyDef, speed, lifePts) { };
+Dragon::Dragon() : Character(8, 8, 3, 8, 2, 100) { };
 
 void Dragon::useAbility(Character* target)
 {

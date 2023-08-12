@@ -1,35 +1,43 @@
 #include "character.h"
 
 // CONSTRUCTORS
-Character::Character() { };
-
 Character::Character(unsigned short magAtk, unsigned short phyAtk, unsigned short magDef, unsigned short phyDef, unsigned short speed, unsigned short lifePts) :
-    stats{magAtk, phyAtk, magDef, phyDef, speed, lifePts} { };
+    maxPS(lifePts), isDead(false), stats{magAtk, phyAtk, magDef, phyDef, speed, lifePts} { };
 
 // GET METHODS
-unsigned short Character::getPhyAtk()
+unsigned short Character::getPhyAtk() const
 {
     return stats.physicalAtk;
 }
 
-unsigned short Character::getMagAtk()
+unsigned short Character::getMagAtk() const
 {
     return stats.magicAtk;
 }
 
-unsigned short Character::getPhyDef()
+unsigned short Character::getPhyDef() const
 {
     return stats.physicalDef;
 }
 
-unsigned short Character::getMagDef()
+unsigned short Character::getMagDef() const
 {
     return stats.magicDef;
 }
 
-unsigned short Character::getLifePoints()
+unsigned short Character::getSpeed() const
+{
+    return stats.speed;
+}
+
+unsigned short Character::getLifePoints() const
 {
     return stats.lifePoints;
+}
+
+unsigned short Character::getMaxPS() const
+{
+    return maxPS;
 }
 
 // SET METHODS
@@ -53,7 +61,13 @@ void Character::setPhyDef(unsigned short amount)
     stats.physicalDef = amount < 0 ? 0 : amount > 10 ? 10 : amount;
 }
 
+void Character::setSpeed(unsigned short amount)
+{
+    stats.speed = amount < 0 ? 0 : amount > 10 ? 10 : amount;
+}
+
 void Character::setLifePoints(unsigned short amount)
 {
-    stats.lifePoints = amount < 0 ? 0 : amount > 10 ? 10 : amount;
+    stats.lifePoints = amount < 0 ? 0 : amount > maxPS ? maxPS : amount;
+    isDead = !(stats.lifePoints > 0);
 }

@@ -7,7 +7,7 @@
 class Wizard : public Character
 {
 public:
-    Wizard(unsigned short, unsigned short, unsigned short, unsigned short, unsigned short, unsigned short);
+    Wizard();
     void useAbility(Character*) override;
 };
 
