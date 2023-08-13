@@ -2,20 +2,20 @@
 #define MOVE_H
 
 #include <string>
+#include "type.h"
+
 
 class Move{
 private:
-    std::string Name;
-    std::string Description;
-    unsigned int magicDmg;
-    unsigned int physicalDmg;
+    std::string Name, Description;
+    unsigned int phyDmg, magDmg;
+    Type type;
 public:
-    explicit Move(std::string, std::string, unsigned int, unsigned int);
-    virtual ~Move() = 0;
+    Move(std::string, std::string, unsigned int, unsigned int, Type);
     std::string getName() const;
     std::string getDescription() const;
-    unsigned int getMagicDmg() const;
-    unsigned int getPhysicalDmg() const;
+    unsigned int getDamage() const;
+    Type getType() const;
 };
 
 #endif

@@ -8,7 +8,7 @@ class Knight : public Character
 {
 public:
     Knight();
-    void useAbility(Character*) override;
+    bool useAbility(Character*) override;
 };
 
 #endif // KNIGHT_H

@@ -4,9 +4,13 @@
 
 Goblin::Goblin() : Character(0, 4, 0, 2, 9, 15) { };
 
-void Goblin::useAbility(Character*)
+// L'abilità dei goblin consiste nell'aumentare del 10% ad ogni turno l'attacco, sia magico che fisico
+bool Goblin::useAbility(Character*)
 {
-
+    setPhyAtk(getPhyAtk() * 0.1 + getPhyAtk());
+    setMagAtk(getMagAtk() * 0.1 + getMagAtk());
+    setAbilityUsed(true);
+    return true;
 }
 
 // la funzione std::ceil arrotonda per eccesso i numeri con parte frazionaria maggiore di 0, in questo modo
@@ -14,7 +18,7 @@ void Goblin::useAbility(Character*)
 void Goblin::setLifePoints(const unsigned short lifePts)
 {
     Character::setLifePoints(lifePts);
-    setAmount(std::ceil(lifePts / 15));
+    setAmount(std::ceil(lifePts / getMaxPS()));
 }
 
 unsigned short Goblin::getAmount() const
@@ -24,5 +28,5 @@ unsigned short Goblin::getAmount() const
 
 void Goblin::setAmount(unsigned short newValue)
 {
-    amount = newValue;
+    amount = newValue < 0 ? 0 : newValue > 5 ? 5 : newValue;
 }

@@ -8,7 +8,7 @@ class Wizard : public Character
 {
 public:
     Wizard();
-    void useAbility(Character*) override;
+    bool useAbility(Character*) override;
 };
 
 #endif // WIZARD_H

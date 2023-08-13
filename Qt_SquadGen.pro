@@ -1,11 +1,9 @@
 TEMPLATE = app
 TARGET = MyProject
 
-SOURCES += main.cpp \
-    Moves/characterspecificmove.cpp \
-    Moves/movesmanager.cpp \
-    Moves/typespecificmove.cpp \
-    main.cpp
+HEADERS += type.h
+
+SOURCES += main.cpp
 
 # Include header and source files from the Characters directory
 INCLUDEPATH += $$PWD/Characters
@@ -16,9 +14,6 @@ HEADERS += \
     Characters/goblin.h \
     Characters/knight.h \
     Characters/wizard.h \
-    Moves/characterspecificmove.h \
-    Moves/movesmanager.h \
-    Moves/typespecificmove.h
 
 SOURCES += \
     Characters/character.cpp \
@@ -31,7 +26,11 @@ SOURCES += \
 # Include header and source files from the Moves directory
 INCLUDEPATH += $$PWD/Moves
 HEADERS += \
-    Moves/move.h
+    Moves/move.h \
+    Moves/characterspecificmove.h \
+    Moves/movesmanager.h
 
 SOURCES += \
-    Moves/move.cpp
+    Moves/move.cpp \
+    Moves/characterspecificmove.cpp \
+    Moves/movesmanager.cpp

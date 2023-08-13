@@ -8,7 +8,7 @@ class Cleric : public Character
 {
 public:
     Cleric();
-    void useAbility(Character*) override;
+    bool useAbility(Character*) override;
 };
 
 #endif // CLERIC_H

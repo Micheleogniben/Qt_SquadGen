@@ -8,7 +8,7 @@ class Dragon : public Character
 {
 public:
     Dragon();
-    void useAbility(Character*) override;
+    bool useAbility(Character*) override;
 };
 
 #endif // DRAGON_H

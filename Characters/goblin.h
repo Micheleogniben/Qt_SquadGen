@@ -10,7 +10,7 @@ private:
     unsigned short amount;
 public:
     Goblin();
-    void useAbility(Character*) override;
+    bool useAbility(Character*) override;
     void setLifePoints(const unsigned short) override;
 
     unsigned short getAmount() const;

@@ -18,7 +18,6 @@ public:
     const std::vector<const TypeSpecificMove* const> getTypeMoves(std::string) const;
     const std::vector<const CharacterSpecificMove* const> getCharacterMoves(std::string) const;
     Move& modifyMove(std::string);
-
 };
 
 #endif // MOVESMANAGER_H
