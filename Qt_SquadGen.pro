@@ -1,9 +1,20 @@
 TEMPLATE = app
 TARGET = MyProject
 
-HEADERS += type.h
 
-SOURCES += main.cpp
+QT += core gui widgets charts
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+CONFIG += c++17
+
+HEADERS += type.h \
+    battlemanager.h \
+    squad.h
+
+SOURCES += main.cpp \
+    battlemanager.cpp \
+    squad.cpp
 
 # Include header and source files from the Characters directory
 INCLUDEPATH += $$PWD/Characters
@@ -34,3 +45,5 @@ SOURCES += \
     Moves/move.cpp \
     Moves/characterspecificmove.cpp \
     Moves/movesmanager.cpp
+
+
