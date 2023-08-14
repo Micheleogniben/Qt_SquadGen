@@ -1,6 +1,7 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
+#include <vector>
 #include "Moves/move.h"
 #include "type.h"
 
@@ -14,7 +15,8 @@ private:
           physicalAtk : 4,
           magicDef : 4,
           physicalDef : 4,
-          speed : 4;
+          speed : 4,
+          weight;
       unsigned short lifePoints : 11;
     };
 
@@ -22,6 +24,8 @@ private:
     bool abilityUsed;
     std::vector<Move*> moves;
     std::vector<Type> types;
+
+    std::string Name;
 
     Statistics stats;
 public:
@@ -36,6 +40,7 @@ public:
     unsigned short getLifePoints() const;
     unsigned short getSpeed() const;
     unsigned short getMaxPS() const;
+    unsigned short getWeight() const;
     bool getAbilityUsed() const;
 
     void setPhyAtk(const unsigned short);
