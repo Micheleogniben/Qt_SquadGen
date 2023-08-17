@@ -10,11 +10,13 @@ CONFIG += c++17
 
 HEADERS += type.h \
     Gui/characterselection.h \
+    Gui/gui.h \
     battlemanager.h \
     squad.h
 
 SOURCES += main.cpp \
     Gui/characterselection.cpp \
+    Gui/gui.cpp \
     battlemanager.cpp \
     squad.cpp
 
@@ -51,10 +53,8 @@ SOURCES += \
 # Include header and source files from the Gui directory
 
 INCLUDEPATH += $$PWD/Gui
-HEADERS += \
-    Gui/startScreen.h
-SOURCES += \
-    Gui/startScreen.cpp
+HEADERS +=
+SOURCES +=
 
 RESOURCES += \
     resources.qrc
