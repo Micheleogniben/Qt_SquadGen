@@ -46,4 +46,14 @@ SOURCES += \
     Moves/characterspecificmove.cpp \
     Moves/movesmanager.cpp
 
+# Include header and source files from the Gui directory
+
+INCLUDEPATH += $$PWD/Gui
+HEADERS += \
+    Gui/startScreen.h
+SOURCES += \
+    Gui/startScreen.cpp
+
+RESOURCES += \
+    resources.qrc
 
