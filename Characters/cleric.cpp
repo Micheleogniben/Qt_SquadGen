@@ -2,8 +2,7 @@
 
 Cleric::Cleric() : Character(0, 1, 4, 1, 5, 50) { };
 
-bool Cleric::useAbility(Character* teammate)
-{
+bool Cleric::useAbility(Character* teammate){
     if (getAbilityUsed())
         return false;
 

@@ -3,13 +3,11 @@
 
 Dragon::Dragon() : Character(8, 8, 3, 8, 2, 100) { };
 
-bool Dragon::useAbility(Character* target)
-{
+bool Dragon::useAbility(Character* target){
     if (getAbilityUsed())
         return false;
 
-    if (dynamic_cast<Goblin*>(target))
-    {
+    if (dynamic_cast<Goblin*>(target)){
         Goblin* goblinTarget = static_cast<Goblin*>(target);
         //tolgo 200 punti vita per ogni goblin che viene schierato
         goblinTarget->setLifePoints((goblinTarget->getLifePoints() - 200) * goblinTarget->getAmount());
@@ -17,8 +15,7 @@ bool Dragon::useAbility(Character* target)
         // la quantità che forma l'orda di goblin che ora è probabilmente diminuita per colpa dell'attacco del drago
         goblinTarget->setAmount(goblinTarget->getLifePoints() / 400);
     }
-    else
-    {
+    else{
 
     }
     setAbilityUsed(true);

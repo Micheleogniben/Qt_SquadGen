@@ -1,8 +1,16 @@
 #include "character.h"
 
-// CONSTRUCTORS
+// CONSTRUCTOR AND DESTRUCTOR
 Character::Character(unsigned short magAtk, unsigned short phyAtk, unsigned short magDef, unsigned short phyDef, unsigned short speed, unsigned short lifePts) :
     maxPS(lifePts), abilityUsed(false), stats{magAtk, phyAtk, magDef, phyDef, speed, lifePts} { };
+
+Character::~Character()
+{
+    for (Move* m : moves) {
+        delete m;
+    }
+    moves.clear();
+}
 
 // GET METHODS
 unsigned short Character::getPhyAtk() const

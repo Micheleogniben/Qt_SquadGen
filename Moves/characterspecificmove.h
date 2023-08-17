@@ -6,10 +6,9 @@
 class CharacterSpecificMove: public Move
 {
 private:
-    std::string Character;
+    std::string character;
 public:
-    explicit CharacterSpecificMove(std::string, std::string, unsigned int, unsigned int, std::string);
-    ~CharacterSpecificMove() override;
+    CharacterSpecificMove(std::string, std::string, unsigned int, unsigned int, Type tp, std::string);
 };
 
 #endif // CHARACTERSPECIFICMOVE_H

@@ -26,6 +26,7 @@ private:
     Statistics stats;
 public:
     Character(unsigned short, unsigned short, unsigned short, unsigned short, unsigned short, unsigned short);
+    ~Character();
 
     virtual bool useAbility(Character*) = 0;
 
