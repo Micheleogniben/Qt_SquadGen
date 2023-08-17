@@ -9,10 +9,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG += c++17
 
 HEADERS += type.h \
+    Gui/characterselection.h \
     battlemanager.h \
     squad.h
 
 SOURCES += main.cpp \
+    Gui/characterselection.cpp \
     battlemanager.cpp \
     squad.cpp
 
