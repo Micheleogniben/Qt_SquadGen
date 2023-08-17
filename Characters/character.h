@@ -1,6 +1,7 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
+#include <vector>
 #include "Moves/move.h"
 #include "type.h"
 
@@ -8,20 +9,23 @@ class Character
 {
 private:
     struct Statistics{
-      // statistiche che devono assumere un valore da 0 a 10 eccetto la vita che arriva a massimo 100 nel caso del drago
-      // (avendo a disposizione 12 bit ne abbiamo messi 11 per coprire future implementazioni di personaggi più forti)
+      // statistiche che devono assumere un valore da 0 a 10 eccetto la vita che arriva a massimo 100 nel caso del drago,
+        //  nel nostro caso per implementazioni future abbiamo deciso di rendere disponibili 12 bit (4095 vita max)
       unsigned short magicAtk : 4,
           physicalAtk : 4,
           magicDef : 4,
           physicalDef : 4,
-          speed : 4;
-      unsigned short lifePoints : 11;
+          speed : 4,
+          weight : 9,   // 9 bit mi permettono di arrivare a 511 di peso massimo, rendendo possibili implementazioni future
+          lifePoints : 12;
     };
 
     const unsigned short maxPS;
     bool abilityUsed;
     std::vector<Move*> moves;
     std::vector<Type> types;
+
+    std::string Name;
 
     Statistics stats;
 public:
@@ -37,6 +41,7 @@ public:
     unsigned short getLifePoints() const;
     unsigned short getSpeed() const;
     unsigned short getMaxPS() const;
+    unsigned short getWeight() const;
     bool getAbilityUsed() const;
 
     void setPhyAtk(const unsigned short);

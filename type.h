@@ -6,7 +6,9 @@ enum class Type
     Earth,
     Fire,
     Air,
-    Light
+    Poison,
+    Light,
+    Neutral
 };
 
 #endif // TYPE_H
