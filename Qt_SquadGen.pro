@@ -9,13 +9,11 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG += c++17
 
 HEADERS += type.h \
-    Gui/characterselection.h \
     Gui/gui.h \
     battlemanager.h \
     squad.h
 
 SOURCES += main.cpp \
-    Gui/characterselection.cpp \
     Gui/gui.cpp \
     battlemanager.cpp \
     squad.cpp
@@ -53,8 +51,9 @@ SOURCES += \
 # Include header and source files from the Gui directory
 
 INCLUDEPATH += $$PWD/Gui
-HEADERS +=
-SOURCES +=
+HEADERS += \
+
+SOURCES += \
 
 RESOURCES += \
     resources.qrc
