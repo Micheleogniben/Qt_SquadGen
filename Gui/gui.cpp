@@ -1,8 +1,37 @@
 #include "gui.h"
 
-Gui::Gui(QWidget* parent): QWidget(parent)
+void Gui::createMenus()
 {
-    startScreen();
+    QMenuBar *menuBar = new QMenuBar(this);
+    QMenu *squadMenu = new QMenu("Squad", this);
+
+    QAction *saveAction = new QAction("Save", this);
+    QAction *loadAction = new QAction("Load", this);
+
+    // Connect the actions to their respective slots
+    connect(saveAction, &QAction::triggered, this, &Gui::saveSquad);
+    connect(loadAction, &QAction::triggered, this, &Gui::loadSquad);
+
+    squadMenu->addAction(saveAction);
+    squadMenu->addAction(loadAction);
+
+    menuBar->addMenu(squadMenu);
+
+    layout()->setMenuBar(menuBar); // Add the menu bar to the layout
+}
+
+void Gui::saveSquad()
+{
+    // Implement your save logic here
+    // For example: open a file dialog to choose a file to save the squad
+    // Save the squad data to the selected file
+}
+
+void Gui::loadSquad()
+{
+    // Implement your load logic here
+    // For example: open a file dialog to choose a file to load the squad from
+    // Load the squad data from the selected file
 }
 
 void Gui::startScreen()
@@ -65,9 +94,14 @@ void Gui::startScreen()
     // Set the main layout of the window
     setLayout(mainLayout);
 
-    // Set the Icon
-    setWindowIcon(QIcon(":/Resources/logo.png"));
-
     // Show the window
     show();
 }
+
+Gui::Gui(QWidget* parent): QWidget(parent)
+{
+    startScreen();
+    createMenus();
+}
+
+
