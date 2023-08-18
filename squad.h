@@ -10,11 +10,14 @@ class Squad
 private:
     std::vector<Character*> components;
     std::string name;
-    static const unsigned int capacity = 50;
 public:
+    Squad();
+    static const unsigned int capacity = 50;
     explicit Squad(std::string, std::vector<Character*>);
     void removeCharacter(Character*);
     void addCharacter(Character*);
+    void setName(std::string);
+    unsigned int weight() const;
 };
 
 #endif // SQUAD_H
