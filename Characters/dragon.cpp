@@ -1,7 +1,7 @@
 #include "dragon.h"
 #include "goblin.h"
 
-Dragon::Dragon() : Character(8, 8, 3, 8, 2, 100) { };
+Dragon::Dragon() : Character(8, 8, 3, 8, 2, 0, 100, {Type::Fire, Type::Air}, CharType::Dragon) { };
 
 bool Dragon::useAbility(Character* target){
     if (getAbilityUsed())

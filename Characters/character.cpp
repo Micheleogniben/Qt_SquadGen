@@ -1,15 +1,19 @@
 #include "character.h"
 
 // CONSTRUCTOR AND DESTRUCTOR
-Character::Character(unsigned short magAtk, unsigned short phyAtk, unsigned short magDef, unsigned short phyDef, unsigned short speed, unsigned short lifePts) :
-    maxPS(lifePts), abilityUsed(false), stats{magAtk, phyAtk, magDef, phyDef, speed, lifePts} { };
+Character::Character(unsigned short magAtk, unsigned short phyAtk, unsigned short magDef, unsigned short phyDef, unsigned short speed, unsigned short weight, unsigned short lifePts, std::vector<Type> tps, CharType charTp) :
+    maxPS(lifePts), abilityUsed(false), types(tps), charType(charTp), stats{magAtk, phyAtk, magDef, phyDef, speed, weight, lifePts}  { };
 
 Character::~Character()
 {
-    for (Move* m : moves) {
+    for (const Move* m : moves)
         delete m;
-    }
+
     moves.clear();
+}
+
+void Character::addMove(const Move* move){
+    moves.push_back(move);
 }
 
 // GET METHODS
@@ -51,6 +55,14 @@ unsigned short Character::getMaxPS() const
 bool Character::getAbilityUsed() const
 {
     return abilityUsed;
+}
+
+std::vector<Type> Character::getTypes() const{
+    return types;
+}
+
+CharType Character::getCharType() const{
+    return charType;
 }
 
 // SET METHODS

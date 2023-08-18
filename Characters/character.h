@@ -2,7 +2,7 @@
 #define CHARACTER_H
 
 #include <vector>
-#include "Moves/move.h"
+#include "move.h"
 #include "type.h"
 
 class Character
@@ -22,17 +22,19 @@ private:
 
     const unsigned short maxPS;
     bool abilityUsed;
-    std::vector<Move*> moves;
+    std::vector<const Move*> moves;
     std::vector<Type> types;
+    CharType charType;
 
     std::string Name;
 
     Statistics stats;
 public:
-    Character(unsigned short, unsigned short, unsigned short, unsigned short, unsigned short, unsigned short);
+    Character(unsigned short, unsigned short, unsigned short, unsigned short, unsigned short, unsigned short, unsigned short, std::vector<Type>, CharType);
     ~Character();
 
     virtual bool useAbility(Character*) = 0;
+    void addMove(const Move*);
 
     unsigned short getPhyAtk() const;
     unsigned short getMagAtk() const;
@@ -43,6 +45,8 @@ public:
     unsigned short getMaxPS() const;
     unsigned short getWeight() const;
     bool getAbilityUsed() const;
+    std::vector<Type> getTypes() const;
+    CharType getCharType() const;
 
     void setPhyAtk(const unsigned short);
     void setMagAtk(const unsigned short);

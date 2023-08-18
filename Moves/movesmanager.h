@@ -10,12 +10,11 @@ class MovesManager
 {
 private:
     std::vector<Move*> allMoves;
-public:
-    MovesManager();
 
-    void addMove(const Move&);
-    void assingMoves(Character&);
-    //const std::vector<const CharacterSpecificMove* const> getCharacterMoves(std::string) const;
+public:
+    void addMove(Move*);
+    void assignMoves(Character*) const;
+    std::vector<Move*> getCompatibleMoves(const Character*) const;
 };
 
 #endif // MOVESMANAGER_H

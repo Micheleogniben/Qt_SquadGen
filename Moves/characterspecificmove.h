@@ -2,13 +2,17 @@
 #define CHARACTERSPECIFICMOVE_H
 
 #include "move.h"
+#include <map>
 
 class CharacterSpecificMove: public Move
 {
 private:
-    std::string character;
+    CharType charType;
+
 public:
-    CharacterSpecificMove(std::string, std::string, unsigned int, unsigned int, Type tp, std::string);
+    CharacterSpecificMove(std::string, std::string, unsigned int, unsigned int, Type tp, CharType);
+    ~CharacterSpecificMove();
+    bool isCompatible(const Character*) const override;
 };
 
 #endif // CHARACTERSPECIFICMOVE_H
