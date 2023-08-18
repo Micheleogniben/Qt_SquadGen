@@ -1,15 +1,14 @@
 #include <QApplication>
 #include <QWidget>
-#include "startScreen.h"
 #include "dragon.h"
 #include "knight.h"
 #include "wizard.h"
 #include "movesmanager.h"
 #include "characterspecificmove.h"
+#include "gui.h"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    QWidget window;
 
     // Creazione delle mosse
     MovesManager movesManager;
@@ -31,6 +30,7 @@ int main(int argc, char *argv[]) {
     movesManager.assignMoves(&knight);
     movesManager.assignMoves(&wizard);
 
-    startScreen(&window);
+    Gui gui;
+    app.setWindowIcon(QIcon(":/Resources/logo.png"));
     return app.exec();
 }

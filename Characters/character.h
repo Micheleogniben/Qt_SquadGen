@@ -42,8 +42,8 @@ public:
     unsigned short getMagDef() const;
     unsigned short getLifePoints() const;
     unsigned short getSpeed() const;
-    unsigned short getMaxPS() const;
     unsigned short getWeight() const;
+    unsigned short getMaxPS() const;
     bool getAbilityUsed() const;
     std::vector<Type> getTypes() const;
     CharType getCharType() const;
