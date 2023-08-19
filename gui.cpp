@@ -4,18 +4,23 @@ void Gui::createMenus()
 {
     QMenuBar *menuBar = new QMenuBar(this);
     QMenu *squadMenu = new QMenu("Squad", this);
+    QMenu* helpMenu = new QMenu("Help", this);
 
     QAction *saveAction = new QAction("Save", this);
     QAction *loadAction = new QAction("Load", this);
+    QAction *helpAction = new QAction("Help", this);
 
     // Connect the actions to their respective slots
     connect(saveAction, &QAction::triggered, this, &Gui::saveSquad);
     connect(loadAction, &QAction::triggered, this, &Gui::loadSquad);
+    connect(helpAction, &QAction::triggered, this, &Gui::help);
 
     squadMenu->addAction(saveAction);
     squadMenu->addAction(loadAction);
+    helpMenu->addAction(helpAction);
 
     menuBar->addMenu(squadMenu);
+    menuBar->addMenu(helpMenu);
 
     layout()->setMenuBar(menuBar); // Add the menu bar to the layout
 }
@@ -34,6 +39,24 @@ void Gui::loadSquad()
     // Load the squad data from the selected file
 }
 
+void Gui::help()
+{
+    QFile file(":/Resources/documentation.txt");
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        QString documentation = in.readAll();
+
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Documentation");
+        msgBox.setText(documentation);
+        msgBox.exec();
+
+        file.close();
+    } else {
+        QMessageBox::warning(nullptr, "Error", "Documentation file not found!");
+    }
+}
+
 void Gui::startScreen()
 {
 
@@ -44,7 +67,7 @@ void Gui::startScreen()
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
     // Add a label with the game name as the title
-    QLabel *titleLabel = new QLabel("BENVENUTO FROCIO");
+    QLabel *titleLabel = new QLabel("WELCOME TO QTKombat");
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("font-size: 24px; font-weight: bold;");
     mainLayout->addWidget(titleLabel);
@@ -52,40 +75,21 @@ void Gui::startScreen()
     // Create a horizontal layout for the buttons
     QHBoxLayout *buttonLayout = new QHBoxLayout();
 
-    // Create and configure the "Inizia" button
-    QPushButton *startButton = new QPushButton("Inizia");
-    startButton->setFixedSize(100, 50);
-    startButton->setStyleSheet("font-size: 18px;");
-    buttonLayout->addWidget(startButton);
+    // Create and configure the "Create your Squad" button
+    QPushButton *createButton = new QPushButton("Create your Squad");
+    createButton->setFixedSize(200, 50);
+    createButton->setStyleSheet("font-size: 18px;");
+    buttonLayout->addWidget(createButton);
 
-    // Create and configure the "Documentazione" button
-    QPushButton *documentationButton = new QPushButton("Documentazione");
-    documentationButton->setFixedSize(150, 50);
-    documentationButton->setStyleSheet("font-size: 18px;");
-    buttonLayout->addWidget(documentationButton);
+    // Create and configure the "Load Squad" button
+    QPushButton *loadButton = new QPushButton("Load a Squad");
+    loadButton->setFixedSize(200, 50);
+    loadButton->setStyleSheet("font-size: 18px;");
+    buttonLayout->addWidget(loadButton);
 
     // Connect the "Inizia" button to the character selection action
-    QObject::connect(startButton, &QPushButton::clicked, [&](){
+    QObject::connect(createButton, &QPushButton::clicked, [&](){
         characterSelection();
-    });
-
-    // Connect the "Documentazione" button to the documentation display action
-    QObject::connect(documentationButton, &QPushButton::clicked, [&](){
-        QFile file(":/Resources/documentation.txt");
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream in(&file);
-            QString documentation = in.readAll();
-
-            QMessageBox msgBox;
-            msgBox.setWindowTitle("Documentation");
-            msgBox.setText(documentation);
-            msgBox.exec();
-
-            file.close();
-        } else {
-            QMessageBox::warning(nullptr, "Error", "Documentation file not found!");
-        }
-
     });
 
     // Add the button layout to the main layout
@@ -108,79 +112,145 @@ void Gui::moveSelection(Squad &){
 
 }
 
-
-void Gui::updateSelectedCharacters(QCheckBox *checkbox, const QString &characterName, QSet<QString>& selectedCharacters, QLabel* remainingCapacityLabel, QHash<QString,int>& characterWeights)
-{
-    if (checkbox->isChecked()) {
-        selectedCharacters.insert(characterName);
-    } else {
-        selectedCharacters.remove(characterName);
+bool Gui::enoughCapacity(const QString &characterName, const int unitCount,  const QHash<QString,QPair<int,int>>& characterMap) const{
+    int totalSelectedWeight = 0;
+    for (auto i = characterMap.cbegin(); i != characterMap.cend(); ++i) {
+        QString key = i.key();
+        QPair<int,int> value = i.value();
+        if(key!=characterName)
+            totalSelectedWeight += value.first * value.second;
     }
-
-    updateRemainingCapacityLabel(selectedCharacters, remainingCapacityLabel, characterWeights);
+    int remainingWeight = Squad::capacity - (totalSelectedWeight + characterMap[characterName].first *unitCount) ;
+    if(remainingWeight  >= 0 ) return true;
+    else return false;
 }
 
-void Gui::updateRemainingCapacityLabel(QSet<QString>& selectedCharacters,QLabel* remainingCapacityLabel, QHash<QString,int>& characterWeights)
+void Gui::updateRemainingCapacityLabel(const QString & characterName, int unitCount, QLabel* remainingCapacityLabel, QHash<QString,QPair<int,int>>& characterMap)
 {
+    characterMap[characterName].second = unitCount;
     int totalSelectedWeight = 0;
-    for (const QString &character : selectedCharacters) {
-        totalSelectedWeight += characterWeights.value(character, 0);
+    for ( auto map : characterMap) {
+        totalSelectedWeight += map.first * map.second;
     }
 
-    int remainingWeight = Squad::capacity - totalSelectedWeight;
-    remainingCapacityLabel->setText("Remaining Weight: " + QString::number(remainingWeight));
+    int remainingCapacity = Squad::capacity - totalSelectedWeight;
+    remainingCapacityLabel->setText("Remaining Capacity: " + QString::number(remainingCapacity));
 }
 
 void Gui::characterSelection(){
-
-    // Create a new dialog for character selection
     QDialog *characterSelectionDialog = new QDialog(this);
     characterSelectionDialog->setWindowTitle("Select Characters");
 
-    // Create a vertical layout for the dialog
     QVBoxLayout *mainLayout = new QVBoxLayout(characterSelectionDialog);
 
     QLabel *remainingCapacityLabel = new QLabel("Remaining Capacity: " + QString::number(Squad::capacity));
     mainLayout->addWidget(remainingCapacityLabel);
 
-    // Create checkboxes for character selection
-    QCheckBox *KnightCheckbox = new QCheckBox("Knight");
-    QCheckBox *WizardCheckbox = new QCheckBox("Wizard");
-    QCheckBox *GoblinCheckbox = new QCheckBox("Goblin");
-    QCheckBox *ClericCheckbox = new QCheckBox("Cleric");
-    QCheckBox *DragonCheckbox = new QCheckBox("Dragon");
-    // ... create more checkboxes for characters as needed
+    QHash<QString,QPair<int,int>> characterMap; // Map to store character weights per unit and number of occurencies
+    characterMap.insert("Knight", QPair<int,int>(15,0));
+    characterMap.insert("Wizard", QPair<int,int>(12,0));
+    characterMap.insert("Goblin", QPair<int,int>(2,0));
+    characterMap.insert("Dragon", QPair<int,int>(30,0));
+    characterMap.insert("Cleric", QPair<int,int>(9,0));
 
-    // Add checkboxes to the layout
-    mainLayout->addWidget(KnightCheckbox);
-    mainLayout->addWidget(WizardCheckbox);
-    mainLayout->addWidget(GoblinCheckbox);
-    mainLayout->addWidget(ClericCheckbox);
-    mainLayout->addWidget(DragonCheckbox);
+    //Boxes
+        // KnightBox
+        QSpinBox *knightSpinBox = new QSpinBox;
+        knightSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
+        QLabel *knightLabel = new QLabel("Knight: " );
+        mainLayout->addWidget(knightLabel);
+        mainLayout->addWidget(knightSpinBox);
 
-    QHash<QString, int> characterWeights; // Map to store character weights
-    characterWeights.insert("Knight",15);
-    characterWeights.insert("Wizard",12);
-    characterWeights.insert("Goblin",2);
-    characterWeights.insert("Dragon",30);
-    characterWeights.insert("Cleric",9);
-    QSet<QString> selectedCharacters;     // Set to store selected characters
+        //WizardBox
+        QSpinBox *wizardSpinBox = new QSpinBox;
+        wizardSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
+        QLabel *wizardLabel = new QLabel("Wizard: ");
+        mainLayout->addWidget(wizardLabel);
+        mainLayout->addWidget(wizardSpinBox);
 
-    QObject::connect(KnightCheckbox, &QCheckBox::toggled, this, [=, &selectedCharacters, &characterWeights]() {
-        updateSelectedCharacters(KnightCheckbox,"Knight",selectedCharacters,remainingCapacityLabel,characterWeights);
-    });
-    QObject::connect(WizardCheckbox, &QCheckBox::toggled, this, [=, &selectedCharacters,  &characterWeights]() {
-        updateSelectedCharacters(WizardCheckbox,"Wizard",selectedCharacters,remainingCapacityLabel,characterWeights);
-    });
-    QObject::connect(GoblinCheckbox, &QCheckBox::toggled, this, [=, &selectedCharacters, &characterWeights]() {
-        updateSelectedCharacters(GoblinCheckbox,"Goblin",selectedCharacters,remainingCapacityLabel,characterWeights);
-    });
-    QObject::connect(ClericCheckbox, &QCheckBox::toggled, this, [=, &selectedCharacters,  &characterWeights]() {
-        updateSelectedCharacters(ClericCheckbox,"Cleric",selectedCharacters,remainingCapacityLabel,characterWeights);
-    });
-    QObject::connect(DragonCheckbox, &QCheckBox::toggled, this, [=, &selectedCharacters, &characterWeights]() {
-        updateSelectedCharacters(DragonCheckbox,"Dragon",selectedCharacters,remainingCapacityLabel,characterWeights);
-    });
+        //ClericBox
+        QSpinBox *clericSpinBox = new QSpinBox;
+        clericSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
+        QLabel *clericLabel = new QLabel("Cleric: ");
+        mainLayout->addWidget(clericLabel);
+        mainLayout->addWidget(clericSpinBox);
+
+        //GoblinBox
+        QSpinBox *goblinSpinBox = new QSpinBox;
+        goblinSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
+        QLabel *goblinLabel = new QLabel("Goblin: ");
+        mainLayout->addWidget(goblinLabel);
+        mainLayout->addWidget(goblinSpinBox);
+
+        //DragonBox
+        QSpinBox *dragonSpinBox = new QSpinBox;
+        dragonSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
+        QLabel *dragonLabel = new QLabel("Dragon ");
+        mainLayout->addWidget(dragonLabel);
+        mainLayout->addWidget(dragonSpinBox);
+
+    //Connections
+        // Connect Knight to update
+        QObject::connect(knightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [=, &characterMap]() {
+            QString character="Knight";
+            bool eC = enoughCapacity(character,knightSpinBox->value(), characterMap);
+            if(eC)
+                updateRemainingCapacityLabel(character, knightSpinBox->value(), remainingCapacityLabel, characterMap);
+            else{
+                QMessageBox::warning(this, "Exceeded Capacity", "Your input has exceeded the remaining capacity.");
+                knightSpinBox->setValue(characterMap[character].second);
+            }
+        });
+
+        // Connect Wizard to update
+        QObject::connect(wizardSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [=, &characterMap]() {
+            QString character="Wizard";
+            bool eC = enoughCapacity(character,wizardSpinBox->value(), characterMap);
+            if(eC)
+                updateRemainingCapacityLabel(character, wizardSpinBox->value(), remainingCapacityLabel, characterMap);
+            else{
+                QMessageBox::warning(this, "Exceeded Capacity", "Your input has exceeded the remaining capacity.");
+                wizardSpinBox->setValue(characterMap[character].second);
+            }
+        });
+
+        // Connect Cleric to update
+        QObject::connect(clericSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [=, &characterMap]() {
+            QString character="Cleric";
+            bool eC = enoughCapacity(character,clericSpinBox->value(), characterMap);
+            if(eC)
+                updateRemainingCapacityLabel(character, clericSpinBox->value(), remainingCapacityLabel, characterMap);
+            else{
+                QMessageBox::warning(this, "Exceeded Capacity", "Your input has exceeded the remaining capacity.");
+                clericSpinBox->setValue(characterMap[character].second);
+            }
+        });
+
+        // Connect Goblin to update
+        QObject::connect(goblinSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [=, &characterMap]() {
+            QString character="Goblin";
+            bool eC = enoughCapacity(character,goblinSpinBox->value(), characterMap);
+            if(eC)
+                updateRemainingCapacityLabel(character, goblinSpinBox->value(), remainingCapacityLabel, characterMap);
+            else{
+                QMessageBox::warning(this, "Exceeded Capacity", "Your input has exceeded the remaining capacity.");
+                goblinSpinBox->setValue(characterMap[character].second);
+            }
+        });
+
+        // Connect Dragon to update
+        QObject::connect(dragonSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [=, &characterMap]() {
+            QString character="Dragon";
+            bool eC = enoughCapacity(character,dragonSpinBox->value(), characterMap);
+            if(eC)
+                updateRemainingCapacityLabel(character, dragonSpinBox->value(), remainingCapacityLabel, characterMap);
+            else{
+                QMessageBox::warning(this, "Exceeded Capacity", "Your input has exceeded the remaining capacity.");
+                dragonSpinBox->setValue(characterMap[character].second);
+            }
+        });
+
+        // more to come...
 
     // Create a button box for OK and Cancel buttons
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -196,20 +266,21 @@ void Gui::characterSelection(){
     if (characterSelectionDialog->exec() == QDialog::Accepted) {
         // Handle the selected characters and proceed with the game
         Squad squad;
-        if (KnightCheckbox->isChecked()) {
-            squad.addCharacter(new Knight());
 
+        for (auto it = characterMap.cbegin(); it != characterMap.cend(); ++it) {
+            QString key = it.key();
+            QPair<int,int> value = it.value();
+            for(int i=value.second; i!=0; i--){
+                if (key=="Knight")  squad.addCharacter(new Knight());
+                else if(key=="Wizard")  squad.addCharacter(new Wizard());
+                else if(key=="Cleric")  squad.addCharacter(new Cleric());
+                else if(key=="Goblin")  squad.addCharacter(new Goblin());
+                else if(key=="Dragon")  squad.addCharacter(new Dragon());
+            }
         }
-        if (WizardCheckbox->isChecked()) {
-            squad.addCharacter(new Wizard());
-        }
-
-        // Clean up memory
-
-        delete buttonBox;
-        delete mainLayout;
+        //Memory Cleanup
         delete characterSelectionDialog;
+        //squadManagement(squad);
 
-        moveSelection(squad);
     }
 }

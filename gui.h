@@ -17,6 +17,8 @@
 #include <QListWidget>
 #include <QCheckBox>
 #include <QDialogButtonBox>
+#include <QSpinBox>
+#include <QPair>
 
 #include <squad.h>
 #include <cleric.h>
@@ -35,13 +37,14 @@ private:
     void createMenus();
     void characterSelection();
     void moveSelection(Squad&);
+    void updateRemainingCapacityLabel(const QString&,int, QLabel*, QHash<QString,QPair<int,int>>&);
+    bool enoughCapacity(const QString &,const int , const QHash<QString,QPair<int,int>>&)const;
 public:
     Gui(QWidget* = nullptr);
-    void updateRemainingCapacityLabel(QSet<QString>&, QLabel*, QHash<QString,int>&);
-    void updateSelectedCharacters(QCheckBox *, const QString &,QSet<QString>&, QLabel*,QHash<QString,int>&);
 private slots:
     void saveSquad(); // Slot for the Save action
     void loadSquad(); // Slot for the Load action
+    void help();      // Slot for the Help action
 };
 
 #endif // GUI_H
