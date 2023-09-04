@@ -155,7 +155,7 @@ Squad* Gui::moveSelection(Squad* squad) {
         QListWidget moveList(&moveDialog);
         moveList.setSpacing(3);
 
-        for (Move* move : movesManager.getAllMoves()) {
+        for (Move* move : movesManager.getCompatibleMoves(character)) {
             QPushButton* infoButton = new QPushButton("Info");
             connect(infoButton, &QPushButton::clicked, [=]() {
                 showMoveInfoDialog(move);
