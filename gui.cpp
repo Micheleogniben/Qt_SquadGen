@@ -1,5 +1,5 @@
 #include "gui.h"
-
+#include <QInputDialog>
 
 void Gui::createMenus()
 {
@@ -146,7 +146,7 @@ void Gui::showMoveInfoDialog(Move* move) {
 Squad* Gui::moveSelection(Squad* squad) {
     MovesManager movesManager;
 
-    for (Character* character : *squad) {
+    for (Character* character : (*squad)) {
         QString type = QString(typeid(*character).name());
         type.remove("6");
 

@@ -20,14 +20,14 @@
 #include <QSpinBox>
 #include <QPair>
 
-#include <squad.h>
-#include <cleric.h>
-#include <knight.h>
-#include <dragon.h>
-#include <goblin.h>
-#include <wizard.h>
-#include <controller.h>
-#include <movesmanager.h>
+#include "squad.h"
+#include "cleric.h"
+#include "knight.h"
+#include "dragon.h"
+#include "goblin.h"
+#include "wizard.h"
+#include "controller.h"
+#include "movesmanager.h"
 
 class Gui: public QWidget
 {

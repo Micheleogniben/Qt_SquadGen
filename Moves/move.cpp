@@ -1,8 +1,8 @@
 #include "move.h"
 #include "character.h"
 
-Move::Move(QString nm, QString dsc, Type tp, CharType chTp):
-    name(nm), desc(dsc), type(tp), charType(chTp) {}
+Move::Move(QString nm, QString dsc, Type tp, CharType chTp, unsigned short magDmg, unsigned short phyDmg):
+    name(nm), desc(dsc), type(tp), charType(chTp), magAtk(magDmg), phyAtk(phyDmg) {}
 
 Move::~Move() = default;
 
@@ -20,6 +20,16 @@ bool Move::isCompatible(const Character* character) const{
 
 QString Move::getName() const{
     return name;
+}
+
+
+unsigned short Move::getMagDmg() const{
+    return magAtk;
+}
+
+
+unsigned short Move::getPhyDmg() const{
+    return phyAtk;
 }
 
 QString Move::getDescription() const{

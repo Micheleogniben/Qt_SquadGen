@@ -19,5 +19,5 @@ void DamageMove::useMove(Character* attacker, Character* defender) const {
     unsigned short magCoeff = magAtk / magDef,
             phyCoeff = phyAtk / phyDef;
 
-    defender->setLifePoints(defender->getLifePoints() - (this->getMagDmg() * magCoeff + this->getPyhDmg() * phyCoeff));
+    defender->setLifePoints(defender->getLifePoints() - (this->getMagDmg() * magCoeff + this->getPhyDmg() * phyCoeff));
 }

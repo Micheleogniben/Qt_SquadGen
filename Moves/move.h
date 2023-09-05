@@ -21,7 +21,7 @@ public:
 
     QString getName() const;
     QString getDescription() const;
-    unsigned short getPyhDmg() const;
+    unsigned short getPhyDmg() const;
     unsigned short getMagDmg() const;
     Type getType() const;
 };
