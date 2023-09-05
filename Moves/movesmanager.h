@@ -1,7 +1,8 @@
 #ifndef MOVESMANAGER_H
 #define MOVESMANAGER_H
 
-#include "move.h"
+#include <damagemove.h>
+#include <statisticmove.h>
 #include "character.h"
 
 #include <vector>
@@ -15,6 +16,7 @@ public:
     MovesManager();
     void addMove(Move*);
     std::vector<Move*> getCompatibleMoves(const Character*) const;
+    Move* moveByName(QString) const;
 };
 
 #endif // MOVESMANAGER_H

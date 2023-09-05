@@ -44,9 +44,9 @@ MovesManager::MovesManager(){
     addMove(new StatisticMove("Speed Debuff", "Riduce la velocità dell'avversario.", {0, 0, 0, 0, 2}, Type::Neutral));
     addMove(new StatisticMove("Magic Attack & Defense Buff", "Potenzia le statistiche magiche diminuendo però quelle fisiche.", {-3, 2, -2, 3, 0}, CharType::Cleric));
     addMove(new StatisticMove("Magic Attack Debuff", "Riduce l'attacco magico dell'avversario.", {4, 0, 0, 0, 0}, Type::Light));
-    // addMove(new StatisticMove("Magic Defense Buff", "Aumenta la difesa magica.", {0, 0, -3, 0, 0}, CharType::Cleric));
+    addMove(new StatisticMove("Magic Defense Buff", "Aumenta la difesa magica.", {0, 0, -3, 0, 0}, CharType::Cleric));
     addMove(new StatisticMove("Physical Defense & Speed Buff", "Aumenta la difesa fisica e la velocità dell'utente.", {2, 0, 0, -2, -3}, Type::Neutral));
-    // addMove(new StatisticMove("Life Points & Speed Debuff", "Riduce la velocità dell'avversario.", {0, 0, 0, 0, -3}, Type::Neutral));
+    addMove(new StatisticMove("Life Points & Speed Debuff", "Riduce la velocità dell'avversario.", {0, 0, 0, 0, -3}, Type::Neutral));
 }
 
 
@@ -61,4 +61,11 @@ std::vector<Move*> MovesManager::getCompatibleMoves(const Character* ch) const {
             moves.push_back(move);
 
     return moves;
+}
+
+Move* MovesManager::moveByName(QString name) const{
+    for(auto move : allMoves){
+        if(move->getName()==name) return move;
+    }
+    return 0; // ERRORE DA TENERE D'OCCHIO
 }

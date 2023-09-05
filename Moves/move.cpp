@@ -1,8 +1,8 @@
 #include "move.h"
 #include "character.h"
 
-Move::Move(QString nm, QString dsc, Type tp, CharType chTp, unsigned short magDmg, unsigned short phyDmg):
-    name(nm), desc(dsc), type(tp), charType(chTp), magAtk(magDmg), phyAtk(phyDmg) {}
+Move::Move(QString nm, QString dsc, Type tp, CharType chTp, unsigned short matk, unsigned short patk):
+    name(nm), desc(dsc), type(tp), charType(chTp), magAtk(matk), phyAtk(patk) {}
 
 Move::~Move() = default;
 
@@ -22,6 +22,14 @@ QString Move::getName() const{
     return name;
 }
 
+QString Move::getDescription() const{
+    return desc;
+}
+
+
+Type Move::getType() const{
+    return type;
+}
 
 unsigned short Move::getMagDmg() const{
     return magAtk;
@@ -30,13 +38,4 @@ unsigned short Move::getMagDmg() const{
 
 unsigned short Move::getPhyDmg() const{
     return phyAtk;
-}
-
-QString Move::getDescription() const{
-    return desc;
-}
-
-
-Type Move::getType() const{
-    return type;
 }

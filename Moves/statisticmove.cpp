@@ -2,7 +2,7 @@
 #include "character.h"
 
 StatisticMove::StatisticMove(QString name, QString description, StatisticChanges statChange, CharType chTp)
-    : Move(name, description, Type::Nill, chTp, 0 ,0), changes(statChange) {}
+    : Move(name, description, Type::Nill, chTp, 0, 0), changes(statChange) {}
 
 StatisticMove::StatisticMove(QString name, QString description, StatisticChanges statChange, Type type)
     : Move(name, description, type, CharType::Nill, 0, 0), changes(statChange) {}
