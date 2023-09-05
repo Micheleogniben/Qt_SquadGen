@@ -1,26 +1,26 @@
 #ifndef MOVE_H
 #define MOVE_H
 
-#include <string>
+#include <Qstring>
 #include "type.h"
 
 class Character;
 
 class Move{
 private:
-    std::string name, desc;
-    unsigned int phyDmg, magDmg;
+    QString name, desc;
     Type type;
+    CharType charType;
+
 public:
-    Move(std::string, std::string, unsigned int, unsigned int, Type);
-    virtual bool isCompatible(const Character*) const;
+    Move(QString, QString, Type, CharType);
+    bool isCompatible(const Character*) const;
+    virtual void useMove(Character*, Character*) const =0;
     virtual ~Move();
 
 
-    std::string getName() const;
-    std::string getDescription() const;
-    unsigned int getPhyDamage() const;
-    unsigned int getMagDamage() const;
+    QString getName() const;
+    QString getDescription() const;
     Type getType() const;
 };
 

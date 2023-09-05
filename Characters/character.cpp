@@ -1,8 +1,9 @@
 #include "character.h"
+#include "statistics.h"
 
 // CONSTRUCTOR AND DESTRUCTOR
-Character::Character(unsigned short magAtk, unsigned short phyAtk, unsigned short magDef, unsigned short phyDef, unsigned short speed, unsigned short weight, unsigned short lifePts, std::vector<Type> tps, CharType charTp) :
-    maxPS(lifePts), abilityUsed(false), types(tps), charType(charTp), stats{magAtk, phyAtk, magDef, phyDef, speed, weight, lifePts}  { };
+Character::Character(DefaultStats d) :
+    maxPS(d.lifePts), burningTurns(0), abilityUsed(false), stats{d.magAtk, d.phyAtk, d.magDef, d.phyDef, d.speed, d.weight, d.lifePts, d.types, d.charType}  { };
 
 Character::~Character(){
     for (const Move* m : moves)
@@ -48,16 +49,20 @@ unsigned short Character::getMaxPS() const{
     return maxPS;
 }
 
+unsigned short Character::getBurnign() const{
+    return burningTurns;
+}
+
 bool Character::getAbilityUsed() const{
     return abilityUsed;
 }
 
 std::vector<Type> Character::getTypes() const{
-    return types;
+    return stats.types;
 }
 
 CharType Character::getCharType() const{
-    return charType;
+    return stats.charType;
 }
 
 // SET METHODS
@@ -79,6 +84,10 @@ void Character::setPhyDef(const unsigned short amount){
 
 void Character::setSpeed(const unsigned short amount){
     stats.speed = amount < 0 ? 0 : amount > 10 ? 10 : amount;
+}
+
+void Character::setBurning(const unsigned short turns){
+    burningTurns = turns;
 }
 
 void Character::setAbilityUsed(const bool val){

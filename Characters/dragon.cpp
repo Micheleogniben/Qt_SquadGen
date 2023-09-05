@@ -1,23 +1,18 @@
 #include "dragon.h"
-#include "goblin.h"
+#include <cstdlib>
+#include <ctime>
 
-Dragon::Dragon() : Character(8, 8, 3, 8, 2, 0, 100, {Type::Fire, Type::Air}, CharType::Dragon) { };
+Dragon::Dragon() : Character(dragonStats) { };
 
 bool Dragon::useAbility(Character* target){
     if (getAbilityUsed())
         return false;
 
-    if (dynamic_cast<Goblin*>(target)){
-        Goblin* goblinTarget = static_cast<Goblin*>(target);
-        //tolgo 200 punti vita per ogni goblin che viene schierato
-        goblinTarget->setLifePoints((goblinTarget->getLifePoints() - 200) * goblinTarget->getAmount());
-        // ipotizzando 400 punti vita per ciascun goblin, dopo aver aggiornato i punti vita per l'attacco subito, aggiorno anche
-        // la quantità che forma l'orda di goblin che ora è probabilmente diminuita per colpa dell'attacco del drago
-        goblinTarget->setAmount(goblinTarget->getLifePoints() / 400);
-    }
-    else{
+    std::srand(static_cast<unsigned int>(std::time(0)));
+    target->setLifePoints(target->getLifePoints() * 0.7);
 
-    }
+    target->setBurning((arc4random() % 4) + 3);
+
     setAbilityUsed(true);
     return true;
 }

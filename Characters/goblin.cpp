@@ -2,7 +2,7 @@
 #include <cmath>
 
 
-Goblin::Goblin() : Character(0, 4, 0, 2, 9, 0, 15, {}, CharType::Goblin) { };
+Goblin::Goblin() : Character(goblinStats) { };
 
 // L'abilità dei goblin consiste nell'aumentare del 10% ad ogni turno l'attacco, sia magico che fisico
 bool Goblin::useAbility(Character*){

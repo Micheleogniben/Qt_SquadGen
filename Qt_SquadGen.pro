@@ -9,16 +9,22 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG += c++17
 
 HEADERS += type.h \
+    Moves/damagemove.h \
+    Moves/statisticmove.h \
     controller.h \
     gui.h \
     battlemanager.h \
-    squad.h
+    squad.h \
+    statistics.h
 
 SOURCES += main.cpp \
+    Moves/damagemove.cpp \
+    Moves/statisticmove.cpp \
     controller.cpp \
     gui.cpp \
     battlemanager.cpp \
-    squad.cpp
+    squad.cpp \
+    statistics.cpp
 
 # Include header and source files from the Characters directory
 INCLUDEPATH += $$PWD/Characters
@@ -42,12 +48,10 @@ SOURCES += \
 INCLUDEPATH += $$PWD/Moves
 HEADERS += \
     Moves/move.h \
-    Moves/characterspecificmove.h \
     Moves/movesmanager.h
 
 SOURCES += \
     Moves/move.cpp \
-    Moves/characterspecificmove.cpp \
     Moves/movesmanager.cpp
 
 # Include header and source files from the Gui directory

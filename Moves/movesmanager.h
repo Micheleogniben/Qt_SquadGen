@@ -12,8 +12,8 @@ private:
     std::vector<Move*> allMoves;
 
 public:
+    MovesManager();
     void addMove(Move*);
-    void assignMoves(Character*) const;
     std::vector<Move*> getCompatibleMoves(const Character*) const;
 };
 
