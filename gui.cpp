@@ -119,8 +119,8 @@ void Gui::showMoveInfoDialog(Move* move) {
 
     QLabel nameLabel("Nome: " + move->getName());
     QLabel descLabel("Descrizione: " + move->getDescription());
-    //QLabel phyDmgLabel("Danno Fisico: " + QString::number(move->getPhyDamage()));
-    //QLabel magDmgLabel("Danno Magico: " + QString::number(move->getMagDamage()));
+    QLabel phyDmgLabel("Danno Fisico: " + QString::number(move->getPhyDmg()));
+    QLabel magDmgLabel("Danno Magico: " + QString::number(move->getMagDmg()));
     QString moveType=toText(move->getType());
     QLabel categoryLabel;
     if(moveType!="")
@@ -130,8 +130,8 @@ void Gui::showMoveInfoDialog(Move* move) {
 
     moveInfoLayout.addWidget(&nameLabel);
     moveInfoLayout.addWidget(&descLabel);
-    //moveInfoLayout.addWidget(&phyDmgLabel);
-    //moveInfoLayout.addWidget(&magDmgLabel);
+    moveInfoLayout.addWidget(&phyDmgLabel);
+    moveInfoLayout.addWidget(&magDmgLabel);
     moveInfoLayout.addWidget(&categoryLabel);
 
     QDialogButtonBox closeButton(QDialogButtonBox::Close, &moveInfoDialog);
@@ -151,7 +151,7 @@ Squad* Gui::moveSelection(Squad* squad) {
         type.remove("6");
 
         QDialog moveDialog(this);
-        moveDialog.setWindowTitle("Selezione Mosse per " + type);
+        moveDialog.setWindowTitle("Selezione Mosse per " + character->getName());
 
         QVBoxLayout moveLayout(&moveDialog);
         QListWidget moveList(&moveDialog);
@@ -372,15 +372,46 @@ Squad* Gui::characterSelection(){
 
         for (auto it = characterMap.cbegin(); it != characterMap.cend(); ++it) {
             QString key = it.key();
-            QPair<int,int> value = it.value();
-            for(int i=value.second; i!=0; i--){
-                if (key=="Knight")  squad->addCharacter(new Knight());
-                else if(key=="Wizard")  squad->addCharacter(new Wizard());
-                else if(key=="Cleric")  squad->addCharacter(new Cleric());
-                else if(key=="Dragon")  squad->addCharacter(new Dragon());
+            QPair<int, int> value = it.value();
+
+            if (key == "Goblin" && value.second > 0) {
+                QString name=QInputDialog::getText(this, "Enter Name", "Enter a name for the Ord of Goblins:");
+                while(name.isEmpty()){
+                    QMessageBox::warning(this, "Missing Name", "You must enter a name for the Ord of Goblins.");
+                    name= QInputDialog::getText(this, "Enter Name", "Enter a name for the Ord of Goblins:");
+                }
+
+                /*if (squad->isNameTaken(name)) {
+                    QMessageBox::warning(this, "Duplicate Name", "This name is already used. Please choose a different name.");
+                    i++; // Ripeti l'iterazione per consentire all'utente di inserire un nome diverso
+                    continue;
+                }*/
+
+                squad->addCharacter(new Goblin(name));
             }
-            if(key=="Goblin" && value.second>0)  squad->addCharacter(new Goblin());
+            else{
+                for (int i = value.second; i != 0; i--) {
+                    QString name = QInputDialog::getText(this, "Enter Name", "Enter a name for the " + key + ":");
+                    while(name.isEmpty()) {
+                        QMessageBox::warning(this, "Missing Name", "You must enter a name for the " + key + ".");
+                        name = QInputDialog::getText(this, "Enter Name", "Enter a name for the " + key + ":");
+                    }
+
+                    /* Verifica che il nome sia unico
+                    if (squad->isNameTaken(name)) {
+                        QMessageBox::warning(this, "Duplicate Name", "This name is already used. Please choose a different name.");
+                        i++; // Ripeti l'iterazione per consentire all'utente di inserire un nome diverso
+                        continue;
+                    }*/
+
+                    if (key == "Knight") squad->addCharacter(new Knight(name));
+                    if (key == "Cleric") squad->addCharacter(new Knight(name));
+                    if (key == "Wizard") squad->addCharacter(new Knight(name));
+                    if (key == "Dragon") squad->addCharacter(new Knight(name));
+                }
+            }
         }
+
         //Memory Cleanup
         delete characterSelectionDialog;
         return squad;

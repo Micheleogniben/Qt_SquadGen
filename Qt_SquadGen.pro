@@ -24,7 +24,8 @@ SOURCES += main.cpp \
     gui.cpp \
     battlemanager.cpp \
     squad.cpp \
-    statistics.cpp
+    statistics.cpp \
+    type.cpp
 
 # Include header and source files from the Characters directory
 INCLUDEPATH += $$PWD/Characters
