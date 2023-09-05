@@ -9,9 +9,6 @@ public:
     DamageMove(QString, QString, unsigned short, unsigned short, CharType);
     DamageMove(QString, QString, unsigned short, unsigned short, Type);
     void useMove(Character*, Character*) const override;
-
-private:
-    unsigned short magDmg, phyDmg;
 };
 
 #endif // DAMAGEMOVE_H

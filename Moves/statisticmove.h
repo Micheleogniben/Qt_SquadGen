@@ -3,6 +3,7 @@
 
 #include "move.h"
 
+
 struct StatisticChanges {
     short magicAtkChange : 5,
             physicalAtkChange : 5,
