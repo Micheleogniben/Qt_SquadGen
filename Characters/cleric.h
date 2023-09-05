@@ -7,7 +7,7 @@
 class Cleric : public Character
 {
 public:
-    Cleric();
+    Cleric(QString);
     bool useAbility(Character*) override;
 };
 

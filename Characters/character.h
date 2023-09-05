@@ -28,10 +28,10 @@ private:
     unsigned short burningTurns;
     bool abilityUsed;
     std::vector<const Move*> moves;
-
+    QString name;
     Statistics stats;
 public:
-    Character(DefaultStats);
+    Character(DefaultStats,QString);
     ~Character();
 
     virtual bool useAbility(Character*) = 0;
@@ -58,6 +58,7 @@ public:
     void setBurning(const unsigned short);
     void setAbilityUsed(const bool);
     virtual void setLifePoints(const unsigned short);
+    QString getName() const;
 };
 
 #endif // CHARACTER_H

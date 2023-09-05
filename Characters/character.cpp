@@ -2,8 +2,8 @@
 #include "statistics.h"
 
 // CONSTRUCTOR AND DESTRUCTOR
-Character::Character(DefaultStats d) :
-    maxPS(d.lifePts), burningTurns(0), abilityUsed(false), stats{d.magAtk, d.phyAtk, d.magDef, d.phyDef, d.speed, d.weight, d.lifePts, d.types, d.charType}  { };
+Character::Character(DefaultStats d, QString n) :
+    maxPS(d.lifePts), burningTurns(0), abilityUsed(false), name(n), stats{d.magAtk, d.phyAtk, d.magDef, d.phyDef, d.speed, d.weight, d.lifePts, d.types, d.charType}  { };
 
 Character::~Character(){
     for (const Move* m : moves)
@@ -96,4 +96,8 @@ void Character::setAbilityUsed(const bool val){
 
 void Character::setLifePoints(const unsigned short amount){
     stats.lifePoints = amount < 0 ? 0 : amount > maxPS ? maxPS : amount;
+}
+
+QString Character::getName() const{
+    return name;
 }

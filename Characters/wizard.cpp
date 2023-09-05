@@ -1,6 +1,6 @@
 #include "wizard.h"
 
-Wizard::Wizard() : Character(wizardStats) { };
+Wizard::Wizard(QString n) : Character(wizardStats,n) { };
 
 // L'abilità dello stregone consiste nel ridurre del 30% ogni statistica dell'avversario (esclusa la vita)
 bool Wizard::useAbility(Character* enemy){

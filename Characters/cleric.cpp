@@ -1,7 +1,7 @@
 #include "cleric.h"
 #include "statistics.h"
 
-Cleric::Cleric() : Character(clericStats) { };
+Cleric::Cleric(QString n) : Character(clericStats, n) { };
 
 bool Cleric::useAbility(Character* teammate){
     if (getAbilityUsed())
