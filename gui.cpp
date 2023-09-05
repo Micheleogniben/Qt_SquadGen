@@ -72,9 +72,7 @@ Character* Gui::selectCharacters(Squad* squad) {
 }
 
 // Funzione per la selezione delle mosse
-void Gui::selectMoves(Character* character) {
-    MovesManager movesManager;
-
+bool Gui::selectMoves(Character* character) {
     QDialog moveDialog(this);
     moveDialog.setWindowTitle("Selezione Mosse per " + character->getName());
 
@@ -122,7 +120,7 @@ void Gui::selectMoves(Character* character) {
 
         if (selectedItems.size() != 2) {
             QMessageBox::critical(this, "Errore", "Devi selezionare esattamente 2 mosse per personaggio");
-            return;
+            return false;
         }
 
         for (QListWidgetItem* selectedItem : selectedItems) {
@@ -130,79 +128,12 @@ void Gui::selectMoves(Character* character) {
             character->addMove(movesManager.moveByName(moveName)); // Aggiungi la mossa al personaggio
         }
         QMessageBox::information(this, "Conferma", "Mosse selezionate con successo per " + character->getName() + ".");
+        return true;
     }
+    else return false;
 }
 
-// Funzione per modificare le mosse di un personaggio specifico
-void Gui::editCharacterMoves(Character* character) {
-    MovesManager movesManager;
-
-    QDialog moveDialog(this);
-    moveDialog.setWindowTitle("Modifica Mosse per " + character->getName());
-
-    QVBoxLayout moveLayout(&moveDialog);
-    QListWidget moveList(&moveDialog);
-    moveList.setSpacing(3);
-
-    // Popola la lista delle mosse compatibili per il personaggio
-    for (Move* move : movesManager.getCompatibleMoves(character)) {
-        QPushButton* infoButton = new QPushButton("Info");
-        connect(infoButton, &QPushButton::clicked, [=]() {
-            showMoveInfoDialog(move);
-        });
-
-        // Crea un widget personalizzato con un layout orizzontale
-        QWidget* itemWidget = new QWidget();
-        QHBoxLayout* itemLayout = new QHBoxLayout(itemWidget);
-
-        QLabel* moveLabel = new QLabel(move->getName());  // Crea un QLabel per il nome della mossa
-
-        itemLayout->setContentsMargins(0, 0, 0, 0);
-        moveLabel->setStyleSheet("font-size: 15px; color: black;");  // Imposta il colore del testo e la dimensione del carattere
-        infoButton->setStyleSheet("font-size: 7px; color: black;");   // Imposta il colore del testo e la dimensione del carattere
-
-        itemLayout->addWidget(moveLabel, 2);               // Aggiungi il nome della mossa a sinistra
-        itemLayout->addWidget(infoButton);              // Aggiungi il pulsante "Info" a destra
-
-        // Imposta il widget personalizzato come elemento del QListWidget
-        QListWidgetItem* item = new QListWidgetItem();
-        item->setSizeHint(QSize(200, 50));
-        moveList.addItem(item);
-        moveList.setItemWidget(item, itemWidget);
-    }
-
-    moveList.setSelectionMode(QAbstractItemView::MultiSelection);
-    moveLayout.addWidget(&moveList);
-
-    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &moveDialog);
-    moveLayout.addWidget(&buttonBox);
-
-    connect(&buttonBox, &QDialogButtonBox::accepted, &moveDialog, &QDialog::accept);
-    connect(&buttonBox, &QDialogButtonBox::rejected, &moveDialog, &QDialog::reject);
-
-    if (moveDialog.exec() == QDialog::Accepted) {
-        QList<QListWidgetItem*> selectedItems = moveList.selectedItems();
-
-        if (selectedItems.size() != 2) {
-            QMessageBox::critical(this, "Errore", "Devi selezionare esattamente 2 mosse per il personaggio");
-            return;
-        }
-
-        character->clearMoves(); //cancello le mosse di prima e ne aggiungo altre
-
-        for (QListWidgetItem* selectedItem : selectedItems) {
-            QString moveName = selectedItem->text();
-            character->addMove(movesManager.moveByName(moveName)); // Aggiungi la mossa al personaggio
-        }
-
-        QMessageBox::information(this, "Conferma", "Mosse modificate con successo per " + character->getName() + ".");
-    }
-    if(moveDialog.exec() == QDialog::Rejected) { return; }
-}
-
-
-// Funzione principale per la modifica delle mosse della squadra
-Squad* Gui::editSquad(Squad* squad) {
+void Gui::editSquad(Squad* squad) {
    Character * character = selectCharacters(squad);
    if(character){
        QMessageBox confirmBox(QMessageBox::Question, "Conferma Azione", "Vuoi eliminare o modificare le mosse di " + character->getName() + "?", QMessageBox::Yes | QMessageBox::No, this);
@@ -212,15 +143,14 @@ Squad* Gui::editSquad(Squad* squad) {
        int choice = confirmBox.exec();
 
        if (choice == QMessageBox::Yes) {
-           editCharacterMoves(character); // Modifica le mosse del personaggio
+           bool correctInsertion =false;
+           while(!correctInsertion) correctInsertion = selectMoves(character);
        } else if (choice == QMessageBox::No) {
            // Elimina il personaggio dalla squadra
        }
    }
-   return squad;
+   return;
 }
-
-
 
 void Gui::squadManagement(Squad* squad) {
     // Create the button widget
@@ -278,7 +208,8 @@ void Gui::squadManagement(Squad* squad) {
     });
 
     connect(editSquadButton, &QPushButton::clicked, [this, squad]() {
-        squadManagement(editSquad(squad));
+        editSquad(squad);
+        squadManagement(squad);
     });
 
     connect(loadSquadButton, &QPushButton::clicked, [this, squad]() {
@@ -320,7 +251,8 @@ void Gui::startScreen()
     connect(createButton, &QPushButton::clicked, [&]() {
         Squad *squadCreated = characterSelection();
         if (squadCreated) {
-            squadManagement(moveSelection(squadCreated));
+            moveSelection(squadCreated);
+            squadManagement(squadCreated);
         }
     });
 
@@ -349,7 +281,7 @@ void Gui::startScreen()
 }
 
 
-Gui::Gui(QWidget* parent): QMainWindow(parent)
+Gui::Gui(QWidget* parent): QMainWindow(parent), movesManager()
 {
     createMenus();
     setCentralWidget(new QWidget());
@@ -388,72 +320,15 @@ void Gui::showMoveInfoDialog(Move* move) {
 }
 
 
-Squad* Gui::moveSelection(Squad* squad) {
-    MovesManager movesManager;
+void Gui::moveSelection(Squad* squad) {
 
     for (Character* character : *squad) {
-        QDialog moveDialog(this);
-        moveDialog.setWindowTitle("Selezione Mosse per " + character->getName());
-
-        QVBoxLayout moveLayout(&moveDialog);
-        QListWidget moveList(&moveDialog);
-        moveList.setSpacing(3);
-
-        for (Move* move : movesManager.getCompatibleMoves(character)) {
-            QPushButton* infoButton = new QPushButton("Info");
-            connect(infoButton, &QPushButton::clicked, [=]() {
-                showMoveInfoDialog(move);
-            });
-
-            // Crea un widget personalizzato con un layout orizzontale
-            QWidget* itemWidget = new QWidget();
-            QHBoxLayout* itemLayout = new QHBoxLayout(itemWidget);
-
-            QLabel* moveLabel = new QLabel(move->getName());  // Crea un QLabel per il nome della mossa
-
-            itemLayout->setContentsMargins(0, 0, 0, 0);
-            moveLabel->setStyleSheet("font-size: 15px; color: black;");  // Imposta il colore del testo e la dimensione del carattere
-            infoButton->setStyleSheet("font-size: 7px; color: black;");   // Imposta il colore del testo e la dimensione del carattere
-
-            itemLayout->addWidget(moveLabel,2);               // Aggiungi il nome della mossa a sinistra
-            itemLayout->addWidget(infoButton);              // Aggiungi il pulsante "Info" a destra
-
-            // Imposta il widget personalizzato come elemento del QListWidget
-            QListWidgetItem* item = new QListWidgetItem();
-            item->setSizeHint(QSize(200,50));
-            moveList.addItem(item);
-            moveList.setItemWidget(item, itemWidget);
-        }
-
-
-        moveList.setSelectionMode(QAbstractItemView::MultiSelection);
-        moveLayout.addWidget(&moveList);
-
-        QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &moveDialog);
-        moveLayout.addWidget(&buttonBox);
-
-        connect(&buttonBox, &QDialogButtonBox::accepted, &moveDialog, &QDialog::accept);
-        connect(&buttonBox, &QDialogButtonBox::rejected, &moveDialog, &QDialog::reject);
-
-        if (moveDialog.exec() == QDialog::Accepted) {
-            QList<QListWidgetItem*> selectedItems = moveList.selectedItems();
-
-            if (selectedItems.size() != 2) {
-                QMessageBox::critical(this, "Errore", "Devi selezionare esattamente 2 mosse per personaggio");
-                return squad;
-            }
-
-            for (QListWidgetItem* selectedItem : selectedItems) {
-                QString moveName = selectedItem->text();
-                character->addMove(movesManager.moveByName(moveName)); // Aggiungi la mossa al personaggio
-            }
-        } else {
-            return nullptr;
-        }
+        bool correctInsertion =false;
+        while(!correctInsertion) correctInsertion = selectMoves(character);
     }
 
     QMessageBox::information(this, "Conferma", "Mosse selezionate con successo per tutti i personaggi.");
-    return squad;
+    return;
 }
 
 
@@ -492,13 +367,21 @@ Squad* Gui::characterSelection(){
     mainLayout->addWidget(remainingCapacityLabel);
 
     QHash<QString,QPair<int,int>> characterMap; // Map to store character weights per unit and number of occurencies DA MODIFICARE
+    characterMap.insert("Goblin", QPair<int,int>(2,0));
     characterMap.insert("Knight", QPair<int,int>(15,0));
     characterMap.insert("Wizard", QPair<int,int>(12,0));
-    characterMap.insert("Goblin", QPair<int,int>(2,0));
-    characterMap.insert("Dragon", QPair<int,int>(30,0));
     characterMap.insert("Cleric", QPair<int,int>(9,0));
+    characterMap.insert("Dragon", QPair<int,int>(30,0));
 
     //Boxes
+
+        //GoblinBox
+        QSpinBox *goblinSpinBox = new QSpinBox;
+        goblinSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
+        QLabel *goblinLabel = new QLabel("Goblin: ");
+        mainLayout->addWidget(goblinLabel);
+        mainLayout->addWidget(goblinSpinBox);
+
         // KnightBox
         QSpinBox *knightSpinBox = new QSpinBox;
         knightSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
@@ -519,13 +402,6 @@ Squad* Gui::characterSelection(){
         QLabel *clericLabel = new QLabel("Cleric: ");
         mainLayout->addWidget(clericLabel);
         mainLayout->addWidget(clericSpinBox);
-
-        //GoblinBox
-        QSpinBox *goblinSpinBox = new QSpinBox;
-        goblinSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
-        QLabel *goblinLabel = new QLabel("Goblin: ");
-        mainLayout->addWidget(goblinLabel);
-        mainLayout->addWidget(goblinSpinBox);
 
         //DragonBox
         QSpinBox *dragonSpinBox = new QSpinBox;
@@ -644,8 +520,8 @@ Squad* Gui::characterSelection(){
                     }
 
                     if (key == "Knight") squad->addCharacter(new Knight(name));
-                    if (key == "Cleric") squad->addCharacter(new Cleric(name));
                     if (key == "Wizard") squad->addCharacter(new Wizard(name));
+                    if (key == "Cleric") squad->addCharacter(new Cleric(name));
                     if (key == "Dragon") squad->addCharacter(new Dragon(name));
                 }
             }

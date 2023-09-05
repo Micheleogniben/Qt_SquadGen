@@ -34,19 +34,27 @@ class Gui: public QMainWindow
 {
     Q_OBJECT
 private:
+    MovesManager movesManager;
+
     void startScreen();
     void createMenus();
+
     Squad* characterSelection();
-    Squad* moveSelection(Squad*);
+    void moveSelection(Squad*);
+    Character* selectCharacters(Squad*);
+    bool selectMoves(Character*);
+
     void updateRemainingCapacityLabel(const QString&,int, QLabel*, QHash<QString,QPair<int,int>>&);
     bool enoughCapacity(const QString &,const int , const QHash<QString,QPair<int,int>>&)const;
+
     void showMoveInfoDialog(Move*);
+    void showCharacterInfoDialog(Character*);
+
     void squadManagement(Squad*);
-    Squad* editSquad(Squad*);
-    void editCharacterMoves(Character*);
+    void editSquad(Squad*);
+
     void startKombat(Squad*);
-    Character* selectCharacters(Squad*);
-    void selectMoves(Character*);
+
 public:
     Gui(QWidget* parent = nullptr);
 private slots:
