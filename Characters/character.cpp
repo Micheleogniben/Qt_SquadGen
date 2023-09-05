@@ -5,12 +5,7 @@
 Character::Character(DefaultStats d, QString n) :
     maxPS(d.lifePts), burningTurns(0), abilityUsed(false), name(n), stats{d.magAtk, d.phyAtk, d.magDef, d.phyDef, d.speed, d.weight, d.lifePts, d.types, d.charType}  { };
 
-Character::~Character(){
-    for (const Move* m : moves)
-        delete m;
-
-    moves.clear();
-}
+Character::~Character() = default;
 
 void Character::addMove(const Move* move){
     moves.push_back(move);

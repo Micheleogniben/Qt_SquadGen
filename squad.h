@@ -54,8 +54,7 @@ public:
     Character* findByName(QString) const;
 
     void pop();
-    void addCharacter(Character*);
-    bool pushBack(Character*);
+    bool addCharacter(Character*);
 
     bool isEmpty() const;
     bool isNameTaken(QString);

@@ -42,12 +42,8 @@ Character* Squad::Iterator::operator*() {
 }
 
 
-void Squad::addCharacter(Character* c){
-    pushBack(c);
-}
-
-bool Squad::pushBack(Character* data) {
-    if (currentWeight + data->getWeight() <= capacity && !isNameTaken(data->getName())) {
+bool Squad::addCharacter(Character* data) {
+    if (currentWeight + data->getWeight() <= 50 && isNameTaken(data->getName())) {
         Node* newNode = new Node(data);
         if (isEmpty()) {
             head = newNode;
