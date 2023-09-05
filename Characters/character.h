@@ -32,7 +32,7 @@ private:
     Statistics stats;
 public:
     Character(DefaultStats,QString);
-    virtual ~Character();
+    ~Character();
 
     virtual bool useAbility(Character*) = 0;
     void addMove(const Move*);
