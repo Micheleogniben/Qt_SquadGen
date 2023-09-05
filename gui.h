@@ -19,17 +19,19 @@
 #include <QDialogButtonBox>
 #include <QSpinBox>
 #include <QPair>
+#include <QInputDialog>
+#include <QMainWindow>
 
-#include "squad.h"
-#include "cleric.h"
-#include "knight.h"
-#include "dragon.h"
-#include "goblin.h"
-#include "wizard.h"
-#include "controller.h"
-#include "movesmanager.h"
+#include <squad.h>
+#include <cleric.h>
+#include <knight.h>
+#include <dragon.h>
+#include <goblin.h>
+#include <wizard.h>
+#include <controller.h>
+#include <movesmanager.h>
 
-class Gui: public QWidget
+class Gui: public QMainWindow
 {
     Q_OBJECT
 private:
@@ -41,12 +43,15 @@ private:
     void updateRemainingCapacityLabel(const QString&,int, QLabel*, QHash<QString,QPair<int,int>>&);
     bool enoughCapacity(const QString &,const int , const QHash<QString,QPair<int,int>>&)const;
     void showMoveInfoDialog(Move*);
+    void squadManagement(Squad*);
 public:
-    Gui(QWidget* = nullptr);
+    Gui(QWidget* parent = nullptr);
 private slots:
-    void saveSquad(); // Slot for the Save action
-    void loadSquad(); // Slot for the Load action
-    void help();      // Slot for the Help action
+    void saveSquad();
+    void loadSquad();
+    void help();
+    void handleModifySquad();
+    void handleStartKombat();
 };
 
 #endif // GUI_H

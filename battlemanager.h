@@ -1,9 +1,9 @@
 #ifndef BATTLEMANAGER_H
 #define BATTLEMANAGER_H
 
-#include "character.h"
-#include "move.h"
-#include "squad.h"
+#include <character.h>
+#include <move.h>
+#include <squad.h>
 
 #include <vector>
 

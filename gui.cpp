@@ -1,5 +1,5 @@
 #include "gui.h"
-#include <QInputDialog>
+
 
 void Gui::createMenus()
 {
@@ -58,19 +58,58 @@ void Gui::help()
     }
 }
 
+void Gui::squadManagement(Squad* squad) {
+    // Crea i pulsanti "Modify Squad" e "Start a Kombat"
+    QWidget *buttonWidget = new QWidget(this);
+
+       // Crea un layout orizzontale per i pulsanti
+       QHBoxLayout *buttonLayout = new QHBoxLayout(buttonWidget);
+
+       // Crea i pulsanti Modify Squad e Kombat e imposta le loro dimensioni e stili
+       QPushButton *modifySquadButton = new QPushButton("Modify Squad");
+       modifySquadButton->setFixedSize(200, 70); // Imposta le dimensioni
+       modifySquadButton->setStyleSheet("font-size: 12px;"); // Imposta lo stile del testo
+
+       QPushButton *startKombatButton = new QPushButton("Start Kombat");
+       startKombatButton->setFixedSize(200, 70); // Imposta le dimensioni
+       startKombatButton->setStyleSheet("font-size: 12px;background-color: red; color: black;"); // Imposta lo stile del testo
+
+       // Connetti i pulsanti ai rispettivi slot o funzioni
+       connect(modifySquadButton, &QPushButton::clicked, this, &Gui::handleModifySquad);
+       connect(startKombatButton, &QPushButton::clicked, this, &Gui::handleStartKombat);
+
+       // Aggiungi i pulsanti al layout orizzontale
+       buttonLayout->addWidget(modifySquadButton);
+       buttonLayout->addWidget(startKombatButton);
+    // Imposta il nuovo widget come widget centrale
+    QWidget * previusWidget= centralWidget();
+    setCentralWidget(buttonWidget);
+    delete previusWidget;
+}
+
+void Gui::handleModifySquad() {
+    // Gestisci il clic su "Modify Squad"
+    // Qui puoi aprire la finestra per modificare la squadra
+}
+
+void Gui::handleStartKombat() {
+    // Gestisci il clic su "Start a Kombat"
+    // Qui puoi avviare il combattimento con la squadra selezionata
+}
+
+
 void Gui::startScreen()
 {
-
     setWindowTitle("QtKombat");
     setFixedSize(750, 400); // Set initial window size
+
     // Create a vertical layout for the window
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this); // Usa direttamente "this" come genitore
 
     // Add a label with the game name as the title
     QLabel *titleLabel = new QLabel("WELCOME TO QTKombat");
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("font-size: 24px; font-weight: bold;");
-    mainLayout->addWidget(titleLabel);
 
     // Create a horizontal layout for the buttons
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -79,36 +118,45 @@ void Gui::startScreen()
     QPushButton *createButton = new QPushButton("Create your Squad");
     createButton->setFixedSize(200, 50);
     createButton->setStyleSheet("font-size: 18px;");
-    buttonLayout->addWidget(createButton);
 
     // Create and configure the "Load Squad" button
     QPushButton *loadButton = new QPushButton("Load a Squad");
     loadButton->setFixedSize(200, 50);
     loadButton->setStyleSheet("font-size: 18px;");
-    buttonLayout->addWidget(loadButton);
 
-    // Connect the "Inizia" button to the character selection action
-    QObject::connect(createButton, &QPushButton::clicked, [&](){
-        Squad* squadCreated= characterSelection();
-        if(!squadCreated->isEmpty()){
-            moveSelection(squadCreated);
+    // Connect the "Create your Squad" button to the character selection action
+    connect(createButton, &QPushButton::clicked, [&]() {
+        Squad *squadCreated = characterSelection();
+        if (squadCreated) {
+            squadManagement(moveSelection(squadCreated));
         }
     });
 
-    // Add the button layout to the main layout
+    // Add the buttons to the horizontal button layout
+    buttonLayout->addWidget(createButton);
+    buttonLayout->addWidget(loadButton);
+
+    // Add the title label to the vertical main layout
+    mainLayout->addWidget(titleLabel);
+
+    // Add spacing or other widgets if needed between title and buttons
+
+    // Add the horizontal button layout to the vertical main layout
     mainLayout->addLayout(buttonLayout);
 
     // Set the main layout of the window
-    setLayout(mainLayout);
+    centralWidget()->setLayout(mainLayout); // Usa centralWidget() per ottenere il widget centrale
 
     // Show the window
     show();
 }
 
-Gui::Gui(QWidget* parent): QWidget(parent), control()
+
+Gui::Gui(QWidget* parent): QMainWindow(parent), control()
 {
-    startScreen();
     createMenus();
+    setCentralWidget(new QWidget());
+    startScreen();
 }
 
 void Gui::showMoveInfoDialog(Move* move) {
@@ -146,7 +194,7 @@ void Gui::showMoveInfoDialog(Move* move) {
 Squad* Gui::moveSelection(Squad* squad) {
     MovesManager movesManager;
 
-    for (Character* character : (*squad)) {
+    for (Character* character : *squad) {
         QString type = QString(typeid(*character).name());
         type.remove("6");
 
@@ -190,6 +238,8 @@ Squad* Gui::moveSelection(Squad* squad) {
         QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &moveDialog);
         moveLayout.addWidget(&buttonBox);
 
+        QList<QListWidgetItem*> selectedItems = moveList.selectedItems();
+
         connect(&buttonBox, &QDialogButtonBox::accepted, &moveDialog, &QDialog::accept);
         connect(&buttonBox, &QDialogButtonBox::rejected, &moveDialog, &QDialog::reject);
 
@@ -203,10 +253,10 @@ Squad* Gui::moveSelection(Squad* squad) {
 
             for (QListWidgetItem* selectedItem : selectedItems) {
                 QString moveName = selectedItem->text();
-                character->addMove(nullptr); // Aggiungi la mossa al personaggio
+                character->addMove(movesManager.moveByName(moveName)); // Aggiungi la mossa al personaggio
             }
         } else {
-            return squad;
+            return nullptr;
         }
     }
 
@@ -416,4 +466,6 @@ Squad* Gui::characterSelection(){
         delete characterSelectionDialog;
         return squad;
     }
+    delete characterSelectionDialog;
+    return 0;
 }
