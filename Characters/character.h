@@ -49,6 +49,7 @@ public:
     bool getAbilityUsed() const;
     std::vector<Type> getTypes() const;
     CharType getCharType() const;
+    QString getName() const;
 
     void setPhyAtk(const unsigned short);
     void setMagAtk(const unsigned short);
@@ -58,7 +59,7 @@ public:
     void setBurning(const unsigned short);
     void setAbilityUsed(const bool);
     virtual void setLifePoints(const unsigned short);
-    QString getName() const;
+    void clearMoves();
 };
 
 #endif // CHARACTER_H

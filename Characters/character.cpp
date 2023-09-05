@@ -96,3 +96,7 @@ void Character::setLifePoints(const unsigned short amount){
 QString Character::getName() const{
     return name;
 }
+
+void Character::clearMoves(){
+    moves.clear();
+}
