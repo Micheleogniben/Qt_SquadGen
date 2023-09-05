@@ -43,7 +43,7 @@ Character* Squad::Iterator::operator*() {
 
 
 bool Squad::addCharacter(Character* data) {
-    if (currentWeight + data->getWeight() <= 50 && isNameTaken(data->getName())) {
+    if (currentWeight + data->getWeight() <= 50 && !isNameTaken(data->getName())) {
         Node* newNode = new Node(data);
         if (isEmpty()) {
             head = newNode;
@@ -100,7 +100,7 @@ bool Squad::isEmpty() const {
 }
 
 bool Squad::isNameTaken(QString name){
-    return findByName(name) == nullptr;
+    return findByName(name) != nullptr;
 }
 
 int Squad::getSize() const {

@@ -11,7 +11,6 @@ CONFIG += c++17
 HEADERS += type.h \
     Moves/damagemove.h \
     Moves/statisticmove.h \
-    controller.h \
     gui.h \
     battlemanager.h \
     squad.h \
@@ -20,7 +19,6 @@ HEADERS += type.h \
 SOURCES += main.cpp \
     Moves/damagemove.cpp \
     Moves/statisticmove.cpp \
-    controller.cpp \
     gui.cpp \
     battlemanager.cpp \
     squad.cpp \

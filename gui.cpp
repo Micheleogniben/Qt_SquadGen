@@ -4,40 +4,18 @@
 void Gui::createMenus()
 {
     QMenuBar *menuBar = new QMenuBar(this);
-    QMenu *squadMenu = new QMenu("Squad", this);
     QMenu* helpMenu = new QMenu("Help", this);
-
-    QAction *saveAction = new QAction("Save", this);
-    QAction *loadAction = new QAction("Load", this);
     QAction *helpAction = new QAction("Help", this);
 
     // Connect the actions to their respective slots
-    connect(saveAction, &QAction::triggered, this, &Gui::saveSquad);
-    connect(loadAction, &QAction::triggered, this, &Gui::loadSquad);
+
     connect(helpAction, &QAction::triggered, this, &Gui::help);
 
-    squadMenu->addAction(saveAction);
-    squadMenu->addAction(loadAction);
     helpMenu->addAction(helpAction);
 
-    menuBar->addMenu(squadMenu);
     menuBar->addMenu(helpMenu);
 
     layout()->setMenuBar(menuBar); // Add the menu bar to the layout
-}
-
-void Gui::saveSquad()
-{
-    // Implement your save logic here
-    // For example: open a file dialog to choose a file to save the squad
-    // Save the squad data to the selected file
-}
-
-void Gui::loadSquad()
-{
-    // Implement your load logic here
-    // For example: open a file dialog to choose a file to load the squad from
-    // Load the squad data from the selected file
 }
 
 void Gui::help()
@@ -58,45 +36,259 @@ void Gui::help()
     }
 }
 
+Character* Gui::selectCharacters(Squad* squad) {
+    QDialog characterSelectDialog(this);
+    characterSelectDialog.setWindowTitle("Selezione dei Personaggi");
+
+    QVBoxLayout characterSelectLayout(&characterSelectDialog);
+    QListWidget characterList(&characterSelectDialog);
+
+    for (Character* character : *squad) {
+        QListWidgetItem* item = new QListWidgetItem(character->getName());
+        characterList.addItem(item);
+    }
+
+    characterSelectLayout.addWidget(&characterList);
+
+    QDialogButtonBox characterSelectButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &characterSelectDialog);
+    characterSelectLayout.addWidget(&characterSelectButtonBox);
+
+    connect(&characterSelectButtonBox, &QDialogButtonBox::accepted, &characterSelectDialog, &QDialog::accept);
+    connect(&characterSelectButtonBox, &QDialogButtonBox::rejected, &characterSelectDialog, &QDialog::reject);
+
+    if (characterSelectDialog.exec() == QDialog::Accepted) {
+        QListWidgetItem* selectedItem = characterList.currentItem();
+        if (!selectedItem) {
+            QMessageBox::critical(this, "Errore", "Devi selezionare un personaggio.");
+            return nullptr;
+        }
+
+        QString selectedCharacterName = selectedItem->text();
+        Character* selectedCharacter = squad->findByName(selectedCharacterName);
+        return selectedCharacter;
+    }
+
+    return nullptr;
+}
+
+// Funzione per la selezione delle mosse
+void Gui::selectMoves(Character* character) {
+    MovesManager movesManager;
+
+    QDialog moveDialog(this);
+    moveDialog.setWindowTitle("Selezione Mosse per " + character->getName());
+
+    QVBoxLayout moveLayout(&moveDialog);
+    QListWidget moveList(&moveDialog);
+    moveList.setSpacing(3);
+
+    for (Move* move : movesManager.getCompatibleMoves(character)) {
+        QPushButton* infoButton = new QPushButton("Info");
+        connect(infoButton, &QPushButton::clicked, [=]() {
+            showMoveInfoDialog(move);
+        });
+
+        // Crea un widget personalizzato con un layout orizzontale
+        QWidget* itemWidget = new QWidget();
+        QHBoxLayout* itemLayout = new QHBoxLayout(itemWidget);
+
+        QLabel* moveLabel = new QLabel(move->getName());  // Crea un QLabel per il nome della mossa
+
+        itemLayout->setContentsMargins(0, 0, 0, 0);
+        moveLabel->setStyleSheet("font-size: 15px; color: black;");  // Imposta il colore del testo e la dimensione del carattere
+        infoButton->setStyleSheet("font-size: 7px; color: black;");   // Imposta il colore del testo e la dimensione del carattere
+
+        itemLayout->addWidget(moveLabel, 2);               // Aggiungi il nome della mossa a sinistra
+        itemLayout->addWidget(infoButton);              // Aggiungi il pulsante "Info" a destra
+
+        // Imposta il widget personalizzato come elemento del QListWidget
+        QListWidgetItem* item = new QListWidgetItem();
+        item->setSizeHint(QSize(200, 50));
+        moveList.addItem(item);
+        moveList.setItemWidget(item, itemWidget);
+    }
+
+    moveList.setSelectionMode(QAbstractItemView::MultiSelection);
+    moveLayout.addWidget(&moveList);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &moveDialog);
+    moveLayout.addWidget(&buttonBox);
+
+    connect(&buttonBox, &QDialogButtonBox::accepted, &moveDialog, &QDialog::accept);
+    connect(&buttonBox, &QDialogButtonBox::rejected, &moveDialog, &QDialog::reject);
+
+    if (moveDialog.exec() == QDialog::Accepted) {
+        QList<QListWidgetItem*> selectedItems = moveList.selectedItems();
+
+        if (selectedItems.size() != 2) {
+            QMessageBox::critical(this, "Errore", "Devi selezionare esattamente 2 mosse per personaggio");
+            return;
+        }
+
+        for (QListWidgetItem* selectedItem : selectedItems) {
+            QString moveName = selectedItem->text();
+            character->addMove(movesManager.moveByName(moveName)); // Aggiungi la mossa al personaggio
+        }
+        QMessageBox::information(this, "Conferma", "Mosse selezionate con successo per " + character->getName() + ".");
+    }
+}
+
+// Funzione per modificare le mosse di un personaggio specifico
+void Gui::editCharacterMoves(Character* character) {
+    MovesManager movesManager;
+
+    QDialog moveDialog(this);
+    moveDialog.setWindowTitle("Modifica Mosse per " + character->getName());
+
+    QVBoxLayout moveLayout(&moveDialog);
+    QListWidget moveList(&moveDialog);
+    moveList.setSpacing(3);
+
+    // Popola la lista delle mosse compatibili per il personaggio
+    for (Move* move : movesManager.getCompatibleMoves(character)) {
+        QPushButton* infoButton = new QPushButton("Info");
+        connect(infoButton, &QPushButton::clicked, [=]() {
+            showMoveInfoDialog(move);
+        });
+
+        // Crea un widget personalizzato con un layout orizzontale
+        QWidget* itemWidget = new QWidget();
+        QHBoxLayout* itemLayout = new QHBoxLayout(itemWidget);
+
+        QLabel* moveLabel = new QLabel(move->getName());  // Crea un QLabel per il nome della mossa
+
+        itemLayout->setContentsMargins(0, 0, 0, 0);
+        moveLabel->setStyleSheet("font-size: 15px; color: black;");  // Imposta il colore del testo e la dimensione del carattere
+        infoButton->setStyleSheet("font-size: 7px; color: black;");   // Imposta il colore del testo e la dimensione del carattere
+
+        itemLayout->addWidget(moveLabel, 2);               // Aggiungi il nome della mossa a sinistra
+        itemLayout->addWidget(infoButton);              // Aggiungi il pulsante "Info" a destra
+
+        // Imposta il widget personalizzato come elemento del QListWidget
+        QListWidgetItem* item = new QListWidgetItem();
+        item->setSizeHint(QSize(200, 50));
+        moveList.addItem(item);
+        moveList.setItemWidget(item, itemWidget);
+    }
+
+    moveList.setSelectionMode(QAbstractItemView::MultiSelection);
+    moveLayout.addWidget(&moveList);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &moveDialog);
+    moveLayout.addWidget(&buttonBox);
+
+    connect(&buttonBox, &QDialogButtonBox::accepted, &moveDialog, &QDialog::accept);
+    connect(&buttonBox, &QDialogButtonBox::rejected, &moveDialog, &QDialog::reject);
+
+    if (moveDialog.exec() == QDialog::Accepted) {
+        QList<QListWidgetItem*> selectedItems = moveList.selectedItems();
+
+        if (selectedItems.size() != 2) {
+            QMessageBox::critical(this, "Errore", "Devi selezionare esattamente 2 mosse per il personaggio");
+            return;
+        }
+
+        character->clearMoves(); //cancello le mosse di prima e ne aggiungo altre
+
+        for (QListWidgetItem* selectedItem : selectedItems) {
+            QString moveName = selectedItem->text();
+            character->addMove(movesManager.moveByName(moveName)); // Aggiungi la mossa al personaggio
+        }
+
+        QMessageBox::information(this, "Conferma", "Mosse modificate con successo per " + character->getName() + ".");
+    }
+    if(moveDialog.exec() == QDialog::Rejected) { return; }
+}
+
+
+// Funzione principale per la modifica delle mosse della squadra
+Squad* Gui::editSquad(Squad* squad) {
+   Character * character = selectCharacters(squad);
+   if(character){
+       QMessageBox confirmBox(QMessageBox::Question, "Conferma Azione", "Vuoi eliminare o modificare le mosse di " + character->getName() + "?", QMessageBox::Yes | QMessageBox::No, this);
+       confirmBox.setButtonText(QMessageBox::Yes, "Modifica Mosse");
+       confirmBox.setButtonText(QMessageBox::No, "Elimina Personaggio");
+
+       int choice = confirmBox.exec();
+
+       if (choice == QMessageBox::Yes) {
+           editCharacterMoves(character); // Modifica le mosse del personaggio
+       } else if (choice == QMessageBox::No) {
+           // Elimina il personaggio dalla squadra
+       }
+   }
+   return squad;
+}
+
+
+
 void Gui::squadManagement(Squad* squad) {
-    // Crea i pulsanti "Modify Squad" e "Start a Kombat"
+    // Create the button widget
     QWidget *buttonWidget = new QWidget(this);
 
-       // Crea un layout orizzontale per i pulsanti
-       QHBoxLayout *buttonLayout = new QHBoxLayout(buttonWidget);
+    // Create a vertical layout for the buttons
+    QVBoxLayout *mainLayout = new QVBoxLayout(buttonWidget);
 
-       // Crea i pulsanti Modify Squad e Kombat e imposta le loro dimensioni e stili
-       QPushButton *modifySquadButton = new QPushButton("Modify Squad");
-       modifySquadButton->setFixedSize(200, 70); // Imposta le dimensioni
-       modifySquadButton->setStyleSheet("font-size: 12px;"); // Imposta lo stile del testo
+    // Create a horizontal layout for the top row buttons
+    QHBoxLayout *topButtonLayout = new QHBoxLayout();
 
-       QPushButton *startKombatButton = new QPushButton("Start Kombat");
-       startKombatButton->setFixedSize(200, 70); // Imposta le dimensioni
-       startKombatButton->setStyleSheet("font-size: 12px;background-color: red; color: black;"); // Imposta lo stile del testo
+    // Create the Save Squad button and set its size and style
+    QPushButton *saveSquadButton = new QPushButton("Save Squad");
+    saveSquadButton->setFixedSize(200, 70);
+    saveSquadButton->setStyleSheet("font-size: 12px;");
 
-       // Connetti i pulsanti ai rispettivi slot o funzioni
-       connect(modifySquadButton, &QPushButton::clicked, this, &Gui::handleModifySquad);
-       connect(startKombatButton, &QPushButton::clicked, this, &Gui::handleStartKombat);
+    // Create the Edit Squad button and set its size and style
+    QPushButton *editSquadButton = new QPushButton("Edit Squad");
+    editSquadButton->setFixedSize(200, 70);
+    editSquadButton->setStyleSheet("font-size: 12px;");
 
-       // Aggiungi i pulsanti al layout orizzontale
-       buttonLayout->addWidget(modifySquadButton);
-       buttonLayout->addWidget(startKombatButton);
-    // Imposta il nuovo widget come widget centrale
-    QWidget * previusWidget= centralWidget();
+    // Create the Load Squad button and set its size and style
+    QPushButton *loadSquadButton = new QPushButton("Load Squad");
+    loadSquadButton->setFixedSize(200, 70);
+    loadSquadButton->setStyleSheet("font-size: 12px;");
+
+    // Add the top row buttons to the horizontal layout
+    topButtonLayout->addWidget(saveSquadButton);
+    topButtonLayout->addWidget(editSquadButton);
+    topButtonLayout->addWidget(loadSquadButton);
+
+    // Create the Start Kombat button and set its size and style
+    QPushButton *startKombatButton = new QPushButton("Start Kombat");
+    startKombatButton->setFixedSize(200, 70);
+    startKombatButton->setStyleSheet("font-size: 12px;background-color: red; color: black;");
+
+    // Create a horizontal layout for the center alignment of the Start Kombat button
+    QHBoxLayout *centerButtonLayout = new QHBoxLayout();
+    centerButtonLayout->addStretch(); // Add stretch to center-align the button
+    centerButtonLayout->addWidget(startKombatButton);
+    centerButtonLayout->addStretch(); // Add stretch to center-align the button
+
+    // Add the top row layout and the center-aligned Start Kombat button layout to the main layout
+    mainLayout->addLayout(topButtonLayout);
+    mainLayout->addLayout(centerButtonLayout);
+
+    // Set the new widget as the central widget
+    QWidget *previousWidget = centralWidget();
     setCentralWidget(buttonWidget);
-    delete previusWidget;
-}
+    delete previousWidget;
 
-void Gui::handleModifySquad() {
-    // Gestisci il clic su "Modify Squad"
-    // Qui puoi aprire la finestra per modificare la squadra
-}
+    // Connect button clicks to lambda functions for handling
+    connect(saveSquadButton, &QPushButton::clicked, [this, squad]() {
 
-void Gui::handleStartKombat() {
-    // Gestisci il clic su "Start a Kombat"
-    // Qui puoi avviare il combattimento con la squadra selezionata
-}
+    });
 
+    connect(editSquadButton, &QPushButton::clicked, [this, squad]() {
+        squadManagement(editSquad(squad));
+    });
+
+    connect(loadSquadButton, &QPushButton::clicked, [this, squad]() {
+
+    });
+
+    connect(startKombatButton, &QPushButton::clicked, [this, squad]() {
+
+    });
+}
 
 void Gui::startScreen()
 {
@@ -132,6 +324,11 @@ void Gui::startScreen()
         }
     });
 
+    connect(loadButton, &QPushButton::clicked, [&]() {
+        //Squad* squad =Parser()...
+        squadManagement(nullptr);
+    });
+
     // Add the buttons to the horizontal button layout
     buttonLayout->addWidget(createButton);
     buttonLayout->addWidget(loadButton);
@@ -152,7 +349,7 @@ void Gui::startScreen()
 }
 
 
-Gui::Gui(QWidget* parent): QMainWindow(parent), control()
+Gui::Gui(QWidget* parent): QMainWindow(parent)
 {
     createMenus();
     setCentralWidget(new QWidget());
@@ -195,9 +392,6 @@ Squad* Gui::moveSelection(Squad* squad) {
     MovesManager movesManager;
 
     for (Character* character : *squad) {
-        QString type = QString(typeid(*character).name());
-        type.remove("6");
-
         QDialog moveDialog(this);
         moveDialog.setWindowTitle("Selezione Mosse per " + character->getName());
 
@@ -237,8 +431,6 @@ Squad* Gui::moveSelection(Squad* squad) {
 
         QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &moveDialog);
         moveLayout.addWidget(&buttonBox);
-
-        QList<QListWidgetItem*> selectedItems = moveList.selectedItems();
 
         connect(&buttonBox, &QDialogButtonBox::accepted, &moveDialog, &QDialog::accept);
         connect(&buttonBox, &QDialogButtonBox::rejected, &moveDialog, &QDialog::reject);
@@ -299,7 +491,7 @@ Squad* Gui::characterSelection(){
     QLabel *remainingCapacityLabel = new QLabel("Remaining Capacity: " + QString::number(Squad::capacity));
     mainLayout->addWidget(remainingCapacityLabel);
 
-    QHash<QString,QPair<int,int>> characterMap; // Map to store character weights per unit and number of occurencies
+    QHash<QString,QPair<int,int>> characterMap; // Map to store character weights per unit and number of occurencies DA MODIFICARE
     characterMap.insert("Knight", QPair<int,int>(15,0));
     characterMap.insert("Wizard", QPair<int,int>(12,0));
     characterMap.insert("Goblin", QPair<int,int>(2,0));
@@ -431,11 +623,10 @@ Squad* Gui::characterSelection(){
                     name= QInputDialog::getText(this, "Enter Name", "Enter a name for the Ord of Goblins:");
                 }
 
-                /*if (squad->isNameTaken(name)) {
+                while(squad->isNameTaken(name)){
                     QMessageBox::warning(this, "Duplicate Name", "This name is already used. Please choose a different name.");
-                    i++; // Ripeti l'iterazione per consentire all'utente di inserire un nome diverso
-                    continue;
-                }*/
+                    name = QInputDialog::getText(this, "Enter Name", "Enter a name for the " + key + ":");
+                }
 
                 squad->addCharacter(new Goblin(name));
             }
@@ -447,17 +638,15 @@ Squad* Gui::characterSelection(){
                         name = QInputDialog::getText(this, "Enter Name", "Enter a name for the " + key + ":");
                     }
 
-                    /* Verifica che il nome sia unico
-                    if (squad->isNameTaken(name)) {
+                    while(squad->isNameTaken(name)){
                         QMessageBox::warning(this, "Duplicate Name", "This name is already used. Please choose a different name.");
-                        i++; // Ripeti l'iterazione per consentire all'utente di inserire un nome diverso
-                        continue;
-                    }*/
+                        name = QInputDialog::getText(this, "Enter Name", "Enter a name for the " + key + ":");
+                    }
 
                     if (key == "Knight") squad->addCharacter(new Knight(name));
-                    if (key == "Cleric") squad->addCharacter(new Knight(name));
-                    if (key == "Wizard") squad->addCharacter(new Knight(name));
-                    if (key == "Dragon") squad->addCharacter(new Knight(name));
+                    if (key == "Cleric") squad->addCharacter(new Cleric(name));
+                    if (key == "Wizard") squad->addCharacter(new Wizard(name));
+                    if (key == "Dragon") squad->addCharacter(new Dragon(name));
                 }
             }
         }
@@ -467,5 +656,5 @@ Squad* Gui::characterSelection(){
         return squad;
     }
     delete characterSelectionDialog;
-    return 0;
+    return nullptr;
 }

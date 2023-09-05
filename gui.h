@@ -28,14 +28,12 @@
 #include <dragon.h>
 #include <goblin.h>
 #include <wizard.h>
-#include <controller.h>
 #include <movesmanager.h>
 
 class Gui: public QMainWindow
 {
     Q_OBJECT
 private:
-    Controller control;
     void startScreen();
     void createMenus();
     Squad* characterSelection();
@@ -44,14 +42,15 @@ private:
     bool enoughCapacity(const QString &,const int , const QHash<QString,QPair<int,int>>&)const;
     void showMoveInfoDialog(Move*);
     void squadManagement(Squad*);
+    Squad* editSquad(Squad*);
+    void editCharacterMoves(Character*);
+    void startKombat(Squad*);
+    Character* selectCharacters(Squad*);
+    void selectMoves(Character*);
 public:
     Gui(QWidget* parent = nullptr);
 private slots:
-    void saveSquad();
-    void loadSquad();
     void help();
-    void handleModifySquad();
-    void handleStartKombat();
 };
 
 #endif // GUI_H
