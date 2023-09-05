@@ -1,5 +1,6 @@
 #include "gui.h"
 
+
 void Gui::createMenus()
 {
     QMenuBar *menuBar = new QMenuBar(this);
@@ -62,7 +63,6 @@ void Gui::startScreen()
 
     setWindowTitle("QtKombat");
     setFixedSize(750, 400); // Set initial window size
-
     // Create a vertical layout for the window
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
@@ -89,7 +89,10 @@ void Gui::startScreen()
 
     // Connect the "Inizia" button to the character selection action
     QObject::connect(createButton, &QPushButton::clicked, [&](){
-        characterSelection();
+        Squad* squadCreated= characterSelection();
+        if(!squadCreated->isEmpty()){
+            moveSelection(squadCreated);
+        }
     });
 
     // Add the button layout to the main layout
@@ -108,9 +111,107 @@ Gui::Gui(QWidget* parent): QWidget(parent), control()
     createMenus();
 }
 
-void Gui::moveSelection(Squad &){
+void Gui::showMoveInfoDialog(Move* move) {
+    QDialog moveInfoDialog(this);
+    moveInfoDialog.setWindowTitle("Informazioni sulla Mossa");
 
+    QVBoxLayout moveInfoLayout(&moveInfoDialog);
+
+    QLabel nameLabel("Nome: " + move->getName());
+    QLabel descLabel("Descrizione: " + move->getDescription());
+    QLabel phyDmgLabel("Danno Fisico: " + QString::number(move->getPhyDamage()));
+    QLabel magDmgLabel("Danno Magico: " + QString::number(move->getMagDamage()));
+    QLabel typeLabel("Tipo: "); // Supponendo che tu abbia una funzione per convertire Type in QString
+
+    moveInfoLayout.addWidget(&nameLabel);
+    moveInfoLayout.addWidget(&descLabel);
+    moveInfoLayout.addWidget(&phyDmgLabel);
+    moveInfoLayout.addWidget(&magDmgLabel);
+    moveInfoLayout.addWidget(&typeLabel);
+
+    QDialogButtonBox closeButton(QDialogButtonBox::Close, &moveInfoDialog);
+    moveInfoLayout.addWidget(&closeButton);
+
+    connect(&closeButton, &QDialogButtonBox::rejected, &moveInfoDialog, &QDialog::reject);
+
+    moveInfoDialog.exec();
 }
+
+
+Squad* Gui::moveSelection(Squad* squad) {
+    MovesManager movesManager;
+    movesManager.addMove(new Move("Fireball", "A ball of fire that burns the target", 3, 20, Type::Fire));
+    movesManager.addMove(new Move("Whirlwind", "Whips up a cyclone to damage the enemy", 10, 19, Type::Air));
+    movesManager.addMove(new Move("Kick", "Delivers a kick to the target", 24, 5, Type::Neutral));
+
+    for (Character* character : *squad) {
+        QString type = QString(typeid(*character).name());
+        type.remove("6");
+
+        QDialog moveDialog(this);
+        moveDialog.setWindowTitle("Selezione Mosse per " + type);
+
+        QVBoxLayout moveLayout(&moveDialog);
+        QListWidget moveList(&moveDialog);
+        moveList.setSpacing(3);
+
+        for (Move* move : movesManager.getCompatibleMoves(character)) {
+            QPushButton* infoButton = new QPushButton("Info");
+            connect(infoButton, &QPushButton::clicked, [=]() {
+                showMoveInfoDialog(move);
+            });
+
+            // Crea un widget personalizzato con un layout orizzontale
+            QWidget* itemWidget = new QWidget();
+            QHBoxLayout* itemLayout = new QHBoxLayout(itemWidget);
+
+            QLabel* moveLabel = new QLabel(move->getName());  // Crea un QLabel per il nome della mossa
+
+            itemLayout->setContentsMargins(0, 0, 0, 0);
+            moveLabel->setStyleSheet("font-size: 15px; color: black;");  // Imposta il colore del testo e la dimensione del carattere
+            infoButton->setStyleSheet("font-size: 7px; color: black;");   // Imposta il colore del testo e la dimensione del carattere
+
+            itemLayout->addWidget(moveLabel,2);               // Aggiungi il nome della mossa a sinistra
+            itemLayout->addWidget(infoButton);              // Aggiungi il pulsante "Info" a destra
+
+            // Imposta il widget personalizzato come elemento del QListWidget
+            QListWidgetItem* item = new QListWidgetItem();
+            item->setSizeHint(QSize(200,50));
+            moveList.addItem(item);
+            moveList.setItemWidget(item, itemWidget);
+        }
+
+
+        moveList.setSelectionMode(QAbstractItemView::MultiSelection);
+        moveLayout.addWidget(&moveList);
+
+        QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &moveDialog);
+        moveLayout.addWidget(&buttonBox);
+
+        connect(&buttonBox, &QDialogButtonBox::accepted, &moveDialog, &QDialog::accept);
+        connect(&buttonBox, &QDialogButtonBox::rejected, &moveDialog, &QDialog::reject);
+
+        if (moveDialog.exec() == QDialog::Accepted) {
+            QList<QListWidgetItem*> selectedItems = moveList.selectedItems();
+
+            if (selectedItems.size() != 2) {
+                QMessageBox::critical(this, "Errore", "Devi selezionare esattamente 2 mosse per personaggio");
+                return squad;
+            }
+
+            for (QListWidgetItem* selectedItem : selectedItems) {
+                QString moveName = selectedItem->text();
+                character->addMove(nullptr); // Aggiungi la mossa al personaggio
+            }
+        } else {
+            return squad;
+        }
+    }
+
+    QMessageBox::information(this, "Conferma", "Mosse selezionate con successo per tutti i personaggi.");
+    return squad;
+}
+
 
 bool Gui::enoughCapacity(const QString &characterName, const int unitCount,  const QHash<QString,QPair<int,int>>& characterMap) const{
     int totalSelectedWeight = 0;
@@ -137,7 +238,7 @@ void Gui::updateRemainingCapacityLabel(const QString & characterName, int unitCo
     remainingCapacityLabel->setText("Remaining Capacity: " + QString::number(remainingCapacity));
 }
 
-void Gui::characterSelection(){
+Squad* Gui::characterSelection(){
     QDialog *characterSelectionDialog = new QDialog(this);
     characterSelectionDialog->setWindowTitle("Select Characters");
 
@@ -265,22 +366,21 @@ void Gui::characterSelection(){
     // Show the character selection dialog
     if (characterSelectionDialog->exec() == QDialog::Accepted) {
         // Handle the selected characters and proceed with the game
-        Squad squad;
+        Squad* squad = new Squad();
 
         for (auto it = characterMap.cbegin(); it != characterMap.cend(); ++it) {
             QString key = it.key();
             QPair<int,int> value = it.value();
             for(int i=value.second; i!=0; i--){
-                if (key=="Knight")  squad.addCharacter(new Knight());
-                else if(key=="Wizard")  squad.addCharacter(new Wizard());
-                else if(key=="Cleric")  squad.addCharacter(new Cleric());
-                else if(key=="Goblin")  squad.addCharacter(new Goblin());
-                else if(key=="Dragon")  squad.addCharacter(new Dragon());
+                if (key=="Knight")  squad->addCharacter(new Knight());
+                else if(key=="Wizard")  squad->addCharacter(new Wizard());
+                else if(key=="Cleric")  squad->addCharacter(new Cleric());
+                else if(key=="Dragon")  squad->addCharacter(new Dragon());
             }
+            if(key=="Goblin" && value.second>0)  squad->addCharacter(new Goblin());
         }
         //Memory Cleanup
         delete characterSelectionDialog;
-        //squadManagement(squad);
-
+        return squad;
     }
 }

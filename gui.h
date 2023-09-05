@@ -27,6 +27,7 @@
 #include <goblin.h>
 #include <wizard.h>
 #include <controller.h>
+#include <movesmanager.h>
 
 class Gui: public QWidget
 {
@@ -35,10 +36,11 @@ private:
     Controller control;
     void startScreen();
     void createMenus();
-    void characterSelection();
-    void moveSelection(Squad&);
+    Squad* characterSelection();
+    Squad* moveSelection(Squad*);
     void updateRemainingCapacityLabel(const QString&,int, QLabel*, QHash<QString,QPair<int,int>>&);
     bool enoughCapacity(const QString &,const int , const QHash<QString,QPair<int,int>>&)const;
+    void showMoveInfoDialog(Move*);
 public:
     Gui(QWidget* = nullptr);
 private slots:

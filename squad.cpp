@@ -16,3 +16,8 @@ unsigned int Squad::weight() const{
     }
     return weight;
 }
+
+bool Squad::isEmpty()const{
+    if(components.size()==0) return true;
+    else return false;
+}
