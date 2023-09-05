@@ -119,15 +119,20 @@ void Gui::showMoveInfoDialog(Move* move) {
 
     QLabel nameLabel("Nome: " + move->getName());
     QLabel descLabel("Descrizione: " + move->getDescription());
-    QLabel phyDmgLabel("Danno Fisico: " + QString::number(move->getPhyDamage()));
-    QLabel magDmgLabel("Danno Magico: " + QString::number(move->getMagDamage()));
-    QLabel typeLabel("Tipo: "); // Supponendo che tu abbia una funzione per convertire Type in QString
+    //QLabel phyDmgLabel("Danno Fisico: " + QString::number(move->getPhyDamage()));
+    //QLabel magDmgLabel("Danno Magico: " + QString::number(move->getMagDamage()));
+    QString moveType=toText(move->getType());
+    QLabel categoryLabel;
+    if(moveType!="")
+        categoryLabel.setText("Tipo: " + moveType );
+    else categoryLabel.setText("Character Specific Move");
+
 
     moveInfoLayout.addWidget(&nameLabel);
     moveInfoLayout.addWidget(&descLabel);
-    moveInfoLayout.addWidget(&phyDmgLabel);
-    moveInfoLayout.addWidget(&magDmgLabel);
-    moveInfoLayout.addWidget(&typeLabel);
+    //moveInfoLayout.addWidget(&phyDmgLabel);
+    //moveInfoLayout.addWidget(&magDmgLabel);
+    moveInfoLayout.addWidget(&categoryLabel);
 
     QDialogButtonBox closeButton(QDialogButtonBox::Close, &moveInfoDialog);
     moveInfoLayout.addWidget(&closeButton);
@@ -140,9 +145,6 @@ void Gui::showMoveInfoDialog(Move* move) {
 
 Squad* Gui::moveSelection(Squad* squad) {
     MovesManager movesManager;
-    movesManager.addMove(new Move("Fireball", "A ball of fire that burns the target", 3, 20, Type::Fire));
-    movesManager.addMove(new Move("Whirlwind", "Whips up a cyclone to damage the enemy", 10, 19, Type::Air));
-    movesManager.addMove(new Move("Kick", "Delivers a kick to the target", 24, 5, Type::Neutral));
 
     for (Character* character : *squad) {
         QString type = QString(typeid(*character).name());

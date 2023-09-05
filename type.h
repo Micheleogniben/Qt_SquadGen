@@ -13,18 +13,7 @@ enum class Type{
     Nill
 };
 
-bool isEqual(Type tp, QString str) {
-    static QMap<Type, QString> typeToString = {
-        {Type::Earth, "earth"},
-        {Type::Fire, "fire"},
-        {Type::Air, "air"},
-        {Type::Poison, "poison"},
-        {Type::Light, "light"},
-        {Type::Neutral, "neutral"}
-    };
-
-    return str.toLower() == typeToString.value(tp).toLower();
-}
+QString toText(Type tp);
 
 enum class CharType{
     Dragon,
