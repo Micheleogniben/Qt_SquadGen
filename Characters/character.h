@@ -27,7 +27,7 @@ private:
     const unsigned short maxPS;
     unsigned short burningTurns;
     bool abilityUsed;
-    std::tuple<const Move*, const Move*> moves;
+    std::vector<const Move*> moves;
     QString name;
     Statistics stats;
 public:
@@ -35,7 +35,7 @@ public:
     virtual ~Character();
 
     virtual bool useAbility(Character*) = 0;
-    void addMove(const Move*, const Move*);
+    void addMove(const Move*);
 
     unsigned short getPhyAtk() const;
     unsigned short getMagAtk() const;
@@ -49,8 +49,8 @@ public:
     bool getAbilityUsed() const;
     std::vector<Type> getTypes() const;
     CharType getCharType() const;
-    QString getMovesNames() const;
     QString getName() const;
+    QString getMovesNames() const;
 
     void setPhyAtk(const unsigned short);
     void setMagAtk(const unsigned short);
@@ -60,7 +60,6 @@ public:
     void setBurning(const unsigned short);
     void setAbilityUsed(const bool);
     virtual void setLifePoints(const unsigned short);
-
     void clearMoves();
 };
 

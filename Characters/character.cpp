@@ -3,12 +3,12 @@
 
 // CONSTRUCTOR AND DESTRUCTOR
 Character::Character(DefaultStats d, QString n) :
-    maxPS(d.lifePts), burningTurns(0), abilityUsed(false), name(n), stats{d.magAtk, d.phyAtk, d.magDef, d.phyDef, d.speed, d.weight, d.lifePts, d.types, d.charType}  { };
+    maxPS(d.lifePts), burningTurns(0), abilityUsed(false), name(n), moves(), stats{d.magAtk, d.phyAtk, d.magDef, d.phyDef, d.speed, d.weight, d.lifePts, d.types, d.charType}  { };
 
 Character::~Character() = default;
 
-void Character::addMove(const Move* m1, const Move* m2){
-    moves = {m1, m2};
+void Character::addMove(const Move* move){
+    moves.push_back(move);
 }
 
 // GET METHODS
@@ -60,15 +60,6 @@ CharType Character::getCharType() const{
     return stats.charType;
 }
 
-QString Character::getMovesNames() const{
-    return std::get<0>(moves)->getName() + ", " + std::get<0>(moves)->getName();
-}
-
-QString Character::getName() const{
-    return name;
-}
-
-
 // SET METHODS
 void Character::setPhyAtk(const unsigned short amount){
     stats.physicalAtk = amount < 0 ? 0 : amount > 10 ? 10 : amount;
@@ -102,6 +93,18 @@ void Character::setLifePoints(const unsigned short amount){
     stats.lifePoints = amount < 0 ? 0 : amount > maxPS ? maxPS : amount;
 }
 
-void Character::clearMoves(){
-    moves = {};
+QString Character::getName() const{
+    return name;
 }
+
+void Character::clearMoves(){
+    moves.clear();
+}
+
+QString Character::getMovesNames() const{
+    QString movesNames="";
+    for(const Move* move :moves)
+        if(move) movesNames += move->getName() + "  ";
+    return movesNames;
+}
+
