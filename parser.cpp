@@ -41,7 +41,7 @@ bool Parser::saveSquad(const QString& filePath, const Squad& squad)
         QJsonArray typesArray;
         for (const Type& type : character->getTypes())
         {
-            typesArray.append(toText(type)); // Supponendo che toText() converta Type in QString
+            typesArray.append(toText(type));
         }
         characterObject["types"] = typesArray;
 
