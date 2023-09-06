@@ -12,13 +12,14 @@ public:
     Character* findByName(QString) const;
 
     void pop();
+    bool deleteByName(QString name);
     bool addCharacter(Character*);
 
     bool isEmpty() const;
     bool isNameTaken(QString);
 
     int getSize() const;
-    unsigned short getWeight() const;
+    unsigned short getCurrentCapacity() const;
 
 
     class Iterator;

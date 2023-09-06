@@ -43,8 +43,9 @@ Character* Squad::Iterator::operator*() {
 
 
 bool Squad::addCharacter(Character* data) {
-    if (currentWeight + data->getWeight() <= 50 && !isNameTaken(data->getName())) {
+    if (currentWeight + data->getWeight() <= capacity && !isNameTaken(data->getName())) {
         Node* newNode = new Node(data);
+        newNode->next = nullptr; // Assicura che il campo "next" del nuovo nodo sia inizializzato a nullptr
         if (isEmpty()) {
             head = newNode;
         } else {
@@ -64,6 +65,37 @@ bool Squad::addCharacter(Character* data) {
 }
 
 
+bool Squad::deleteByName(QString name) {
+    Node* current = head;
+    Node* previous = nullptr;
+
+    while (current != nullptr) {
+        if (current->data->getName().compare(name, Qt::CaseInsensitive) == 0) {
+            // Trovato il personaggio da eliminare
+
+            if (previous == nullptr) {
+                pop();
+                return true;
+            } else {
+                // Il personaggio da eliminare è in mezzo o alla fine della lista
+                previous->next = current->next;
+            }
+
+            currentWeight -= current->data->getWeight();
+            delete current->data;
+            delete current;
+            size--;
+            return true;
+        }
+
+        previous = current;
+        current = current->next;
+    }
+
+    return false; // Personaggio non trovato
+}
+
+
 void Squad::pop() {
     if (!isEmpty()) {
         Node* temp = head;
@@ -77,8 +109,8 @@ void Squad::pop() {
 
 Character* Squad::findByName(QString name) const {
     Node* current = head;
-    while (current != nullptr) {
-        if (current->data->getName() == name) {
+        while (current != nullptr) {
+        if (current->data->getName().compare(name, Qt::CaseInsensitive) == 0) {
             return current->data;
         }
         current = current->next;
@@ -107,6 +139,6 @@ int Squad::getSize() const {
     return size;
 }
 
-unsigned short Squad::getWeight() const {
-    return currentWeight;
+unsigned short Squad::getCurrentCapacity() const {
+    return capacity - currentWeight;
 }
