@@ -13,6 +13,7 @@ HEADERS += type.h \
     Moves/statisticmove.h \
     gui.h \
     battlemanager.h \
+    parser.h \
     squad.h \
     statistics.h
 
@@ -21,6 +22,7 @@ SOURCES += main.cpp \
     Moves/statisticmove.cpp \
     gui.cpp \
     battlemanager.cpp \
+    parser.cpp \
     squad.cpp \
     statistics.cpp \
     type.cpp

@@ -7,8 +7,8 @@ Character::Character(DefaultStats d, QString n) :
 
 Character::~Character() = default;
 
-void Character::addMove(const Move* move){
-    moves.push_back(move);
+void Character::addMove(const Move* m1, const Move* m2){
+    moves = {m1, m2};
 }
 
 // GET METHODS
@@ -60,6 +60,15 @@ CharType Character::getCharType() const{
     return stats.charType;
 }
 
+QString Character::getMovesNames() const{
+    return std::get<0>(moves)->getName() + ", " + std::get<0>(moves)->getName();
+}
+
+QString Character::getName() const{
+    return name;
+}
+
+
 // SET METHODS
 void Character::setPhyAtk(const unsigned short amount){
     stats.physicalAtk = amount < 0 ? 0 : amount > 10 ? 10 : amount;
@@ -93,10 +102,6 @@ void Character::setLifePoints(const unsigned short amount){
     stats.lifePoints = amount < 0 ? 0 : amount > maxPS ? maxPS : amount;
 }
 
-QString Character::getName() const{
-    return name;
-}
-
 void Character::clearMoves(){
-    moves.clear();
+    moves = {};
 }
