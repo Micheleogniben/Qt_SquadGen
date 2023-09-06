@@ -29,31 +29,37 @@
 #include <goblin.h>
 #include <wizard.h>
 #include <movesmanager.h>
+#include <battlemanager.h>
 
 class Gui: public QMainWindow
 {
     Q_OBJECT
 private:
-    MovesManager movesManager;
+    MovesManager* movesManager;
+    BattleManager* battleManager;
+    Squad* squad;
 
-    void startScreen();
     void createMenus();
-
-    Squad* characterSelection();
-    void moveSelection(Squad*);
-    Character* selectCharacters(Squad*);
-    bool selectMoves(Character*);
 
     void updateRemainingCapacityLabel(const QString&,int, QLabel*, QHash<QString,QPair<int,int>>&);
     bool enoughCapacity(const QString &,const int , const QHash<QString,QPair<int,int>>&)const;
 
+//Dialog Windows
+
+    void characterSelection();
+    bool moveSelection();
+    void selectCharacter();
+    int selectMoves(Character*);
+    void chooseAction(Character*);
+
     void showMoveInfoDialog(Move*);
     void showCharacterInfoDialog(Character*);
 
-    void squadManagement(Squad*);
-    void editSquad(Squad*);
+//Flow windows
 
-    void startKombat(Squad*);
+    void startScreen();
+    void squadManagement();
+    void startKombat();
 
 public:
     Gui(QWidget* parent = nullptr);
