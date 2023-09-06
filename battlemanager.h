@@ -10,13 +10,10 @@
 class BattleManager
 {
 private:
-    Squad team1, team2;
-    Character * main1, * main2;
+    Squad* team1, * team2;
     unsigned int turn;
 public:
-    explicit BattleManager(Squad &,Squad &);
-    void setMain1(Character*);
-    void setMain2(Character*);
+    BattleManager(Squad*);
     void initBattle(Character*, Character*);
     void attack(Move*);
     void ability();

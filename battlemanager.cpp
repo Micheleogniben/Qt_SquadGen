@@ -1,25 +1,11 @@
 #include "battlemanager.h"
 
-BattleManager::BattleManager(Squad & s1, Squad & s2)
-    : team1(s1), team2(s2)
+BattleManager::BattleManager(Squad* s1)
+    : team1(s1), team2(nullptr)
 {
     turn = 0;
 }
 
-void BattleManager::setMain1(Character * c){
-    main1=c;
-}
-
-void BattleManager::setMain2(Character * c){
-    main2=c;
-}
-
-void BattleManager::initBattle(Character* c1, Character* c2)
-{
-   setMain1(c1);
-   setMain2(c2);
-    turn++;
-}
 
 unsigned int BattleManager::getTurn() const{
     return turn;
