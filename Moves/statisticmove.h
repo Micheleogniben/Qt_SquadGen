@@ -20,6 +20,7 @@ public:
     StatisticMove(QString, QString, StatisticChanges, CharType);
     void useMove(Character*, Character*) const override;
 
+    QJsonObject toJsonObj() const override;
 private:
     StatisticChanges changes;
 };

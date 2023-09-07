@@ -15,6 +15,8 @@ public:
 
     unsigned short getAmount() const;
     void setAmount(unsigned short);
+
+    QJsonObject toJsonObj() const override;
 };
 
 #endif // GOBLIN_H

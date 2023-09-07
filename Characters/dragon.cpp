@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 
-Dragon::Dragon(QString n) : Character(dragonStats,n) { };
+Dragon::Dragon(QString n) : Character(dragonStats, n) { };
 
 bool Dragon::useAbility(Character* target){
     if (getAbilityUsed())

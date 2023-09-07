@@ -2,7 +2,9 @@
 #include <cmath>
 
 
-Goblin::Goblin(QString n, unsigned short a) : Character(goblinStats,n), amount(a) { };
+Goblin::Goblin(QString n, unsigned short a) : Character(goblinStats,n), amount(a) {
+    Character::setLifePoints(getMaxPS() * amount);
+}
 
 // L'abilità dei goblin consiste nell'aumentare del 10% ad ogni turno l'attacco, sia magico che fisico
 bool Goblin::useAbility(Character*){
@@ -24,5 +26,13 @@ unsigned short Goblin::getAmount() const{
 }
 
 void Goblin::setAmount(unsigned short newValue){
-    amount = newValue;
+    amount = newValue /*< 0 ? 0 : newValue > 5 ? 5 : newValue*/;
+}
+
+
+QJsonObject Goblin::toJsonObj() const{
+    QJsonObject characterObj = Character::toJsonObj();
+    characterObj["amount"] = amount;
+    characterObj["lifePts"] = amount * getMaxPS();
+    return characterObj;
 }
