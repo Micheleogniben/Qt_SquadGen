@@ -64,8 +64,9 @@ private:
     void showCharacterInfoDialog(Character*);
 
     void attack();
-    Character* chooseAttacker() const;
-    Move* chooseMove()const;
+    Character* chooseCharacter(Squad*,QString);
+    Move* chooseMove(Character*);
+    int chooseKombatAction();
 
 //Flow windows
 

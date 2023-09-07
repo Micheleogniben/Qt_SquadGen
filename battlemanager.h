@@ -4,6 +4,7 @@
 #include <character.h>
 #include <move.h>
 #include <squad.h>
+#include <QMessageBox>
 
 #include <vector>
 
@@ -18,9 +19,12 @@ public:
     void ability();
     void removeDeadCharacter(QString);
     void endBattle();
-    unsigned int getTurn() const;
-    void endTurnChecks();
+    int getTurn() const;
+    void updateTurn();
     Squad* getTeam(int) const;
+    void update();
+    void removeDeadCharacters(Squad*);
+    ~BattleManager();
 };
 
 #endif // BATTLEMANAGER_H

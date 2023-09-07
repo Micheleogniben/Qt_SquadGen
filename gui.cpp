@@ -103,9 +103,147 @@ void Gui::updateKombatScreen(QVBoxLayout* yourTeamLayout, QVBoxLayout* opponentL
     }
 }
 
+Character* Gui::chooseCharacter(Squad* squadSelected, QString title){
+    QDialog attackerSelectDialog(this);
+    attackerSelectDialog.setWindowTitle(title);
+
+    QVBoxLayout attackerSelectLayout(&attackerSelectDialog);
+
+    QLabel promptLabel("Scegli un personaggio");
+    attackerSelectLayout.addWidget(&promptLabel);
+
+    QListWidget attackerListWidget(&attackerSelectDialog);
+    attackerListWidget.setSelectionMode(QAbstractItemView::SingleSelection);
+
+    for (Character* character : *squadSelected) {
+        QListWidgetItem* item = new QListWidgetItem(character->getName());
+        attackerListWidget.addItem(item);
+    }
+
+    attackerSelectLayout.addWidget(&attackerListWidget);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &attackerSelectDialog);
+    attackerSelectLayout.addWidget(&buttonBox);
+
+    connect(&buttonBox, &QDialogButtonBox::accepted, &attackerSelectDialog, &QDialog::accept);
+    connect(&buttonBox, &QDialogButtonBox::rejected, &attackerSelectDialog, &QDialog::reject);
+
+    if (attackerSelectDialog.exec() == QDialog::Accepted) {
+        QListWidgetItem* selectedItem = attackerListWidget.currentItem();
+        if (selectedItem) {
+            QString selectedCharacterName = selectedItem->text();
+            Character* selectedCharacter = squadSelected->findByName(selectedCharacterName);
+            return selectedCharacter;
+        }
+    }
+
+    return nullptr; // Nessun personaggio selezionato o dialogo annullato
+}
+
+Move* Gui::chooseMove(Character* character) {
+    QDialog moveSelectDialog(this);
+    moveSelectDialog.setWindowTitle("Scegli una Mossa");
+
+    QVBoxLayout moveSelectLayout(&moveSelectDialog);
+
+    QLabel promptLabel("Scegli una mossa per " + character->getName() + ":");
+    moveSelectLayout.addWidget(&promptLabel);
+
+    QListWidget moveListWidget(&moveSelectDialog);
+    moveListWidget.setSelectionMode(QAbstractItemView::SingleSelection);
+
+    const std::tuple<const Move*, const Move*> availableMoves = character->getMoves();
+    const Move* firstMove = std::get<0>(availableMoves);
+    const Move* secondMove = std::get<1>(availableMoves);
+
+    QListWidgetItem* firstMoveItem = new QListWidgetItem(firstMove->getName());
+    QListWidgetItem* secondMoveItem = new QListWidgetItem(secondMove->getName());
+
+    moveListWidget.addItem(firstMoveItem);
+    moveListWidget.addItem(secondMoveItem);
+
+    moveSelectLayout.addWidget(&moveListWidget);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &moveSelectDialog);
+    moveSelectLayout.addWidget(&buttonBox);
+
+    connect(&buttonBox, &QDialogButtonBox::accepted, &moveSelectDialog, &QDialog::accept);
+    connect(&buttonBox, &QDialogButtonBox::rejected, &moveSelectDialog, &QDialog::reject);
+
+    if (moveSelectDialog.exec() == QDialog::Accepted) {
+        QListWidgetItem* selectedItem = moveListWidget.currentItem();
+        if (selectedItem) {
+            QString selectedMoveName = selectedItem->text();
+            if (selectedMoveName == firstMove->getName()) {
+                return const_cast<Move*>(firstMove); // Rimuovi const e restituisci la mossa
+            } else if (selectedMoveName == secondMove->getName()) {
+                return const_cast<Move*>(secondMove); // Rimuovi const e restituisci la mossa
+            }
+        }
+    }
+
+    return nullptr; // Nessuna mossa selezionata o dialogo annullato
+}
+
+
+int Gui::chooseKombatAction() {
+    QDialog actionSelectDialog(this);
+    actionSelectDialog.setWindowTitle("Scegli un'azione di combattimento");
+
+    QVBoxLayout actionSelectLayout(&actionSelectDialog);
+
+    QLabel promptLabel("Scegli un'azione di combattimento:");
+    actionSelectLayout.addWidget(&promptLabel);
+
+    QRadioButton* abilityRadio = new QRadioButton("Usa l'abilità");
+    QRadioButton* moveRadio = new QRadioButton("Scegli una mossa");
+
+    QButtonGroup buttonGroup(&actionSelectDialog);
+    buttonGroup.addButton(abilityRadio);
+    buttonGroup.addButton(moveRadio);
+
+    actionSelectLayout.addWidget(abilityRadio);
+    actionSelectLayout.addWidget(moveRadio);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &actionSelectDialog);
+    actionSelectLayout.addWidget(&buttonBox);
+
+    connect(&buttonBox, &QDialogButtonBox::accepted, &actionSelectDialog, &QDialog::accept);
+    connect(&buttonBox, &QDialogButtonBox::rejected, &actionSelectDialog, &QDialog::reject);
+
+    if (actionSelectDialog.exec() == QDialog::Accepted) {
+        if (abilityRadio->isChecked()) {
+            return 0; // L'utente ha scelto di usare l'abilità
+        } else if (moveRadio->isChecked()) {
+            return 1; // L'utente ha scelto di selezionare una mossa
+        }
+    }
+
+    return -1; // Nessuna scelta o dialogo annullato
+}
 
 
 void Gui::attack(){
+    Character * attacker = chooseCharacter(battleManager->getTeam(1),QString("Scegli un Personaggio con cui Attaccare"));
+    Character* defender = nullptr;
+    Move* move = nullptr;
+    if(attacker) {
+        if(chooseKombatAction()==1){
+            move = chooseMove(attacker);
+        }
+        else{
+            //attacker->useAbility();
+        }
+    }
+    if(move){
+        defender = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
+        if(defender){
+            move->useMove(attacker,defender);
+            battleManager->update();
+            battleManager->updateTurn();
+        }
+    }
+
 }
 
 
@@ -261,7 +399,6 @@ int Gui::updateMoves(Character* character) {
     QVBoxLayout mainLayout(&moveDialog);
 
     std::set<QString> movesToAdd;  // Utilizza un set invece di un vettore
-    std::vector<QString> selectedMoves;  // Vettore per le mosse selezionate
 
     // Crea una QScrollArea per la lista delle mosse
     QScrollArea scrollArea;
@@ -286,15 +423,15 @@ int Gui::updateMoves(Character* character) {
         });
         moveLayout.addWidget(infoButton);
 
-        connect(selectCheckBox, &QCheckBox::stateChanged, [&movesToAdd, &selectedMoves, &move, &selectCheckBox](int state) {
+        connect(selectCheckBox, &QCheckBox::stateChanged, [move, &movesToAdd, selectCheckBox](int state) {
             if (state == Qt::Checked) {
-                if (selectedMoves.size() < 2) {
-                    selectedMoves.push_back(move->getName());  // Aggiungi al vettore
-                } else {
-                    selectCheckBox->setCheckState(Qt::Unchecked);  // Deseleziona se già ci sono 2
+                if (selectCheckBox->isChecked()) {
+                    movesToAdd.insert(move->getName());
+                    //qDebug() << "Selected Move Name: " << move->getName();
                 }
             } else if (state == Qt::Unchecked) {
-                selectedMoves.erase(std::remove(selectedMoves.begin(), selectedMoves.end(), move->getName()), selectedMoves.end());  // Rimuovi dal vettore
+                movesToAdd.erase(move->getName());
+                //qDebug() << "Unselected Move Name: " << move->getName();
             }
         });
     }
@@ -311,13 +448,20 @@ int Gui::updateMoves(Character* character) {
     connect(&buttonBox, &QDialogButtonBox::rejected, &moveDialog, &QDialog::reject);
 
     if (moveDialog.exec() == QDialog::Accepted) {
-        if (selectedMoves.size() != 2) {
+        if (movesToAdd.size() != 2) {
             QMessageBox::critical(this, "Errore", "Devi selezionare esattamente 2 mosse per personaggio");
             return 0;
         }
-        character->clearMoves();
-        character->addMove(movesManager->moveByName(selectedMoves[0]), movesManager->moveByName(selectedMoves[1]));
-        return 2;
+        else {
+            auto it = movesToAdd.begin();
+                Move* firstMove = movesManager->moveByName(*it);
+                ++it;
+                Move* secondMove = movesManager->moveByName(*it);
+
+                character->clearMoves();
+                character->addMove(firstMove, secondMove);
+                return 2;
+        }
     }
 
     return 1;
@@ -613,7 +757,7 @@ void Gui::startScreen()
 
 
 void Gui::managementScreen() {
-    // Create the button widget
+
     QWidget *buttonWidget = new QWidget(this);
 
     // Create a vertical layout for the buttons
@@ -719,6 +863,15 @@ void Gui::kombatScreen() {
 
     mainLayout->addWidget(attackButton);
 
+    QHBoxLayout *exitLayout = new QHBoxLayout();
+
+    // Crea un pulsante "Esci" più piccolo
+    QPushButton *exitButton = new QPushButton("Esci", kombatWidget);
+    exitButton->setFixedSize(80, 30); // Imposta le dimensioni desiderate
+
+    // Aggiungi il pulsante "Esci" al layout orizzontale
+    exitLayout->addWidget(exitButton, Qt::AlignRight | Qt::AlignBottom);
+
     // Imposta il layout principale per la finestra di combattimento
     kombatWidget->setLayout(mainLayout);
 
@@ -727,6 +880,11 @@ void Gui::kombatScreen() {
         attack();
         updateKombatScreen(yourTeamLayout,opponentLayout);
     });
+
+    connect(exitButton, &QPushButton::clicked, [=]() {
+        managementScreen();
+    });
+
 }
 
 
