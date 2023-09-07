@@ -36,6 +36,7 @@
 #include <movesmanager.h>
 #include <battlemanager.h>
 #include <type.h>
+#include <statistics.h>
 
 class Gui: public QMainWindow
 {

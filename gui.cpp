@@ -225,7 +225,7 @@ int Gui::chooseKombatAction() {
 
 void Gui::attack(){
     Character * attacker = chooseCharacter(battleManager->getTeam(1),QString("Scegli un Personaggio con cui Attaccare"));
-    Character* defender = nullptr;
+    Character* target = nullptr;
     Move* move = nullptr;
     if(attacker) {
         if(chooseKombatAction()==1){
@@ -236,9 +236,10 @@ void Gui::attack(){
         }
     }
     if(move){
-        defender = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
-        if(defender){
-            move->useMove(attacker,defender);
+        //if(dynamic) DINAMIC CAST
+        target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
+        if(target){
+            move->useMove(attacker,target);
             battleManager->update();
             battleManager->updateTurn();
         }
@@ -513,11 +514,11 @@ void Gui::characterSelection(){
     mainLayout->addWidget(remainingCapacityLabel);
 
     QHash<QString,QPair<int,int>> characterMap; // Map to store character weights per unit and number of occurencies DA MODIFICARE
-    characterMap.insert("Goblin", QPair<int,int>(2,0));
-    characterMap.insert("Knight", QPair<int,int>(15,0));
-    characterMap.insert("Wizard", QPair<int,int>(12,0));
-    characterMap.insert("Cleric", QPair<int,int>(9,0));
-    characterMap.insert("Dragon", QPair<int,int>(30,0));
+    characterMap.insert("Goblin", QPair<int,int>(goblinStats.weight,0));
+    characterMap.insert("Knight", QPair<int,int>(knightStats.weight,0));
+    characterMap.insert("Wizard", QPair<int,int>(wizardStats.weight,0));
+    characterMap.insert("Cleric", QPair<int,int>(clericStats.weight,0));
+    characterMap.insert("Dragon", QPair<int,int>(dragonStats.weight,0));
 
     //Boxes
 

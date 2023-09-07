@@ -13,8 +13,6 @@ enum class Type{
     Nill
 };
 
-QString toText(Type tp);
-
 enum class CharType{
     Dragon,
     Wizard,
@@ -23,5 +21,8 @@ enum class CharType{
     Goblin,
     Nill
 };
+
+QString toText(Type tp);
+QString toText(CharType chTp);
 
 #endif // TYPE_H
