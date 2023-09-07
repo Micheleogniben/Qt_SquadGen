@@ -24,5 +24,5 @@ unsigned short Goblin::getAmount() const{
 }
 
 void Goblin::setAmount(unsigned short newValue){
-    amount = newValue < 0 ? 0 : newValue > 5 ? 5 : newValue;
+    amount = newValue;
 }
