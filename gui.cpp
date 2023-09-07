@@ -61,6 +61,52 @@ void Gui::updateRemainingCapacityLabel(const QString & characterName, int unitCo
     remainingCapacityLabel->setText("Remaining Capacity: " + QString::number(remainingCapacity));
 }
 
+//=========================
+
+void Gui::updateKombatScreen(QVBoxLayout* yourTeamLayout, QVBoxLayout* opponentLayout) {
+
+    QLayoutItem* item;
+    while ((item = yourTeamLayout->takeAt(0)) != nullptr) {
+        QWidget* widget = item->widget();
+        if (widget) {
+            yourTeamLayout->removeWidget(widget);
+            delete widget;
+        }
+        delete item;
+    }
+
+    while ((item = opponentLayout->takeAt(0)) != nullptr) {
+        QWidget* widget = item->widget();
+        if (widget) {
+            opponentLayout->removeWidget(widget);
+            delete widget;
+        }
+        delete item;
+    }
+
+    QLabel *yourTeamLabel = new QLabel("Your Squad:");
+    yourTeamLabel->setStyleSheet("font-size: 20px;color:red");
+    yourTeamLayout->addWidget(yourTeamLabel);
+
+    QLabel *opponentLabel = new QLabel("YourVictim:");
+    opponentLabel->setStyleSheet("font-size: 20px;color:red");
+    opponentLayout->addWidget(opponentLabel);
+
+    for (Character* character : *battleManager->getTeam(1)) {
+        QLabel* label = new QLabel(character->getName() + "   " + QString::number(character->getLifePoints()) + " LifeP");
+        yourTeamLayout->addWidget(label);
+    }
+
+    for (Character* character : *battleManager->getTeam(2)) {
+        QLabel* label = new QLabel(character->getName() + "   " + QString::number(character->getLifePoints()) + " LifeP");
+        opponentLayout->addWidget(label);
+    }
+}
+
+
+
+void Gui::attack(){
+}
 
 
 //=========================
@@ -71,6 +117,8 @@ void Gui::showCharacterInfoDialog(Character* character){
     QVBoxLayout characterInfoLayout(&characterInfoDialog);
 
     QLabel nameLabel("Nome: " + character->getName());
+    QLabel characterLabel("Character Type:  " + toText(character->getCharType()));
+    QLabel typeLabel("Types:  ");
     QLabel phAtkLabel("Danno Fisico:  " + QString::number(character->getPhyAtk()));
     QLabel magAtkLabel("Attacco Magico:   " + QString::number(character->getMagAtk()));
     QLabel phDefLabel("Difesa fisica:   "+ QString::number(character->getPhyDef()));
@@ -78,6 +126,7 @@ void Gui::showCharacterInfoDialog(Character* character){
     QLabel movesNames("Mosse:  " + character->getMovesNames());
 
     characterInfoLayout.addWidget(&nameLabel);
+    characterInfoLayout.addWidget(&characterLabel);
     characterInfoLayout.addWidget(&phAtkLabel);
     characterInfoLayout.addWidget(&magAtkLabel);
     characterInfoLayout.addWidget(&phDefLabel);
@@ -628,9 +677,58 @@ void Gui::managementScreen() {
     });
 
     connect(startKombatButton, &QPushButton::clicked, [this]() {
-
+        kombatScreen();
     });
 }
+
+void Gui::kombatScreen() {
+
+    QWidget* managementWidget = centralWidget();
+    QWidget *kombatWidget = new QWidget(this);
+    setCentralWidget(kombatWidget);
+    delete managementWidget;
+
+    // Crea un layout principale per la finestra di combattimento
+    QVBoxLayout *mainLayout = new QVBoxLayout(kombatWidget);
+
+    // Crea un layout orizzontale per la parte superiore della finestra (informazioni sulla squadra)
+    QHBoxLayout *topLayout = new QHBoxLayout();
+
+    // Crea una sezione per visualizzare i membri della tua squadra
+    QWidget *yourTeamWidget = new QWidget(kombatWidget);
+    QVBoxLayout *yourTeamLayout = new QVBoxLayout(yourTeamWidget);
+
+    // Crea una sezione per visualizzare l'avversario
+    QWidget *opponentWidget = new QWidget(kombatWidget);
+    QVBoxLayout *opponentLayout = new QVBoxLayout(opponentWidget);
+
+    Squad* opponentSquad= new Squad();
+    opponentSquad->addCharacter(new Dragon("ADAM"));
+
+    battleManager = new BattleManager(squad,opponentSquad);
+
+    updateKombatScreen(yourTeamLayout,opponentLayout);
+
+    topLayout->addWidget(yourTeamWidget);
+    topLayout->addWidget(opponentWidget);
+
+    mainLayout->addLayout(topLayout);
+
+    // Crea un pulsante per l'attacco
+    QPushButton *attackButton = new QPushButton("Attacca", kombatWidget);
+
+    mainLayout->addWidget(attackButton);
+
+    // Imposta il layout principale per la finestra di combattimento
+    kombatWidget->setLayout(mainLayout);
+
+    // Connetti il pulsante "Attacca" a una funzione per gestire l'attacco
+    connect(attackButton, &QPushButton::clicked,[=](){
+        attack();
+        updateKombatScreen(yourTeamLayout,opponentLayout);
+    });
+}
+
 
 //=========================
 
@@ -638,7 +736,7 @@ void Gui::managementScreen() {
 Gui::Gui(QWidget* parent): QMainWindow(parent)
 {
     movesManager=new MovesManager();
-    battleManager=new BattleManager(nullptr);
+    battleManager=nullptr;
     squad=new Squad();
 
     createMenus();

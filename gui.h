@@ -35,6 +35,7 @@
 #include <wizard.h>
 #include <movesmanager.h>
 #include <battlemanager.h>
+#include <type.h>
 
 class Gui: public QMainWindow
 {
@@ -48,6 +49,7 @@ private:
 
     void updateRemainingCapacityLabel(const QString&,int, QLabel*, QHash<QString,QPair<int,int>>&);
     bool enoughCapacity(const QString &,const int , const QHash<QString,QPair<int,int>>&)const;
+    void updateKombatScreen(QVBoxLayout*, QVBoxLayout*);
 
 //Dialog Windows
 
@@ -60,6 +62,10 @@ private:
 
     void showMoveInfoDialog(Move*);
     void showCharacterInfoDialog(Character*);
+
+    void attack();
+    Character* chooseAttacker() const;
+    Move* chooseMove()const;
 
 //Flow windows
 

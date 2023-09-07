@@ -1,27 +1,13 @@
 #include "battlemanager.h"
 
-BattleManager::BattleManager(Squad* s1)
-    : team1(s1), team2(nullptr)
+BattleManager::BattleManager(Squad* s1, Squad* s2)
+    : team1(s1), team2(s2)
 {
     turn = 0;
 }
 
-
-unsigned int BattleManager::getTurn() const{
-    return turn;
-}
-
-void BattleManager::endTurnChecks(){
-
-}
-
-void BattleManager::attack(Move*){
-    if(turn%2==1){
-
-    }
-    else{
-
-    }
-    endTurnChecks();
-    turn++;
+Squad* BattleManager::getTeam(int i)const{
+    if(i==1) return team1;
+    if(i==2) return team2;
+    else return nullptr;
 }
