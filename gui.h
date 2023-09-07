@@ -21,6 +21,11 @@
 #include <QPair>
 #include <QInputDialog>
 #include <QMainWindow>
+#include <QButtonGroup>
+#include <QRadioButton>
+#include <QStringListModel>
+#include <QScrollArea>
+#include <set>
 
 #include <squad.h>
 #include <cleric.h>
@@ -47,9 +52,10 @@ private:
 //Dialog Windows
 
     void characterSelection();
-    bool moveSelection();
-    void selectCharacter();
-    int selectMoves(Character*);
+    void moveSelection();
+
+    void squadManagement();
+    int updateMoves(Character*);
     void chooseAction(Character*);
 
     void showMoveInfoDialog(Move*);
@@ -58,8 +64,8 @@ private:
 //Flow windows
 
     void startScreen();
-    void squadManagement();
-    void startKombat();
+    void managementScreen();
+    void kombatScreen();
 
 public:
     Gui(QWidget* parent = nullptr);
