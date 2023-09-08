@@ -9,6 +9,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG += c++17
 
 HEADERS += type.h \
+    Characters/boss.h \
     gui.h \
     battlemanager.h \
     parser.h \
@@ -16,6 +17,7 @@ HEADERS += type.h \
     statistics.h
 
 SOURCES += main.cpp \
+    Characters/boss.cpp \
     gui.cpp \
     battlemanager.cpp \
     parser.cpp \

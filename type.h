@@ -19,6 +19,7 @@ enum class CharType{
     Cleric,
     Knight,
     Goblin,
+    Boss,
     Nill
 };
 

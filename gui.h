@@ -64,7 +64,7 @@ private:
     void showMoveInfoDialog(Move*);
     void showCharacterInfoDialog(Character*);
 
-    void attack();
+    int attack();
     Character* chooseCharacter(Squad*,QString);
     Move* chooseMove(Character*);
     int chooseKombatAction();

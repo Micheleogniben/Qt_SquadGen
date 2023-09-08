@@ -22,5 +22,6 @@ extern const DefaultStats clericStats;
 extern const DefaultStats wizardStats;
 extern const DefaultStats knightStats;
 extern const DefaultStats goblinStats;
+extern const DefaultStats bossStats;
 
 #endif // STATISTICS_H

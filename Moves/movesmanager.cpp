@@ -38,6 +38,8 @@ MovesManager::MovesManager(){
     addMove(new DamageMove("Goblin Ambush", "Attacca di sorpresa da goblin.", 25, 15, CharType::Goblin));
     addMove(new DamageMove("Arcane Missile", "Scatena una pioggia di missili magici.", 20, 10, CharType::Wizard));
     addMove(new DamageMove("Lightning Bolt", "Lancia un fulmine devastante.", 30, 15, CharType::Wizard));
+    addMove(new DamageMove("Abyss", "Crea una voragine nel terreno", 50,0,CharType::Boss));
+    addMove(new DamageMove("God's tear", "Scatena una forza arcana", 0,100,CharType::Boss));
 
 
 
