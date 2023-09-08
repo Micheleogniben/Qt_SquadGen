@@ -20,15 +20,13 @@ public:
     bool setTeam(Squad*,int);
     void setBossBattle(MovesManager*);
     void attack(Move*);
-    void ability();
     void removeDeadCharacter(QString);
-    void endBattle();
     int getTurn() const;
     void updateTurn();
     Squad* getTeam(int) const;
-    void update();
+    int update();
     void removeDeadCharacters(Squad*);
-    void opponentKombatLogic();
+    void opponentKombatLogic()const;
     ~BattleManager();
 };
 

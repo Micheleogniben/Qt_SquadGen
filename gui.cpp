@@ -223,7 +223,7 @@ int Gui::chooseKombatAction() {
 }
 
 
-void Gui::attack(){
+int Gui::attack(){
     Character * attacker = chooseCharacter(battleManager->getTeam(1),QString("Scegli un Personaggio con cui Attaccare"));
     Character* target = nullptr;
     Move* move = nullptr;
@@ -242,13 +242,17 @@ void Gui::attack(){
             move->useMove(attacker,target);
             qDebug() << attacker->getName() << " used " << move->getName() << " targeting " << target->getName()  ;
             qDebug() << target->getLifePoints() << "    "<< move->getPhyDmg();
-            battleManager->update();
+
+            int i=battleManager->update();
+            if(i!=0) return i;
+
             QMessageBox::warning(nullptr, "Bad News", "Now it's your opponent's turn");
             battleManager->opponentKombatLogic();
+            i=battleManager->update();
+            if(i!=0) return i;
             battleManager->updateTurn();
         }
     }
-
 }
 
 
@@ -899,8 +903,18 @@ void Gui::kombatScreen() {
 
     // Connetti il pulsante "Attacca" a una funzione per gestire l'attacco
     connect(attackButton, &QPushButton::clicked,[=](){
-        attack();
+        int i = attack();
         updateKombatScreen(yourTeamLayout,opponentLayout);
+        if(i==1){
+            QMessageBox::warning(nullptr, "Lost", "All the members of your squad died");
+            delete battleManager;
+            managementScreen();
+        }
+        if(i==2){
+            QMessageBox::warning(nullptr, "Victory", "You smashed your enemy");
+            delete battleManager;
+            managementScreen();
+        }
     });
 
     connect(exitButton, &QPushButton::clicked, [=]() {

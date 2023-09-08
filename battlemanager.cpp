@@ -21,17 +21,18 @@ void BattleManager::updateTurn(){
     turn++;
 }
 
-void BattleManager::update() {
+int BattleManager::update() {
     removeDeadCharacters(team1);
     removeDeadCharacters(team2);
 
     if (team1->isEmpty()) {
-        QMessageBox::warning(nullptr, "Loss", "HAI PERSO");
+        return 1;
     }
 
     if (team2->isEmpty()) {
-        QMessageBox::warning(nullptr, "Victory", "HAI VINTO");
+        return 2;
     }
+    return 0;
 }
 
 void BattleManager::removeDeadCharacters(Squad* team) {
@@ -45,8 +46,10 @@ void BattleManager::removeDeadCharacters(Squad* team) {
 
 
 BattleManager::~BattleManager(){
-    for(auto character: *team1) delete character;
-    for(auto character: *team2) delete character;
+    if(team1 && team2){
+        delete team1;
+        delete team2;
+    }
 }
 
 bool BattleManager::setTeam(Squad* team, int i){
@@ -77,7 +80,7 @@ void BattleManager::setBossBattle(MovesManager* m){
     team2->addCharacter(boss);
 }
 
-void BattleManager::opponentKombatLogic(){
+void BattleManager::opponentKombatLogic() const{
 
     if(!team1 || !team2) return;
     if(team1 && team1->getSize()==0) return;
@@ -104,6 +107,5 @@ void BattleManager::opponentKombatLogic(){
     if(attacker && move && target){
         move->useMove(attacker,target);
         QMessageBox::warning(nullptr, "Attack executed", attacker->getName() + " used " + move->getName() + " targeting " +target->getName());
-        update();
     }
 }
