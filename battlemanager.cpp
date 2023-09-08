@@ -2,8 +2,8 @@
 
 BattleManager::BattleManager(Squad* s1, Squad* s2)
 {
-    team1 = s1;
-    team2 = s2;
+    if(s1) team1 = new Squad(*s1);
+    if(s2) team2 = new Squad(*s2);
     turn = 0;
 }
 
@@ -46,10 +46,8 @@ void BattleManager::removeDeadCharacters(Squad* team) {
 
 
 BattleManager::~BattleManager(){
-    if(team1 && team2){
-        delete team1;
-        delete team2;
-    }
+    if(team1) delete team1;
+    if(team2) delete team2;
 }
 
 bool BattleManager::setTeam(Squad* team, int i){

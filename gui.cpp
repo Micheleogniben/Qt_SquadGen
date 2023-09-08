@@ -9,15 +9,13 @@ void Gui::createMenus()
     QMenu* helpMenu = new QMenu("Help", this);
     QAction *helpAction = new QAction("Help", this);
 
-    // Connect the actions to their respective slots
-
     connect(helpAction, &QAction::triggered, this, &Gui::help);
 
     helpMenu->addAction(helpAction);
 
     menuBar->addMenu(helpMenu);
 
-    layout()->setMenuBar(menuBar); // Add the menu bar to the layout
+    layout()->setMenuBar(menuBar);
 }
 
 void Gui::help()
@@ -953,6 +951,7 @@ void Gui::kombatScreen() {
     });
 
     connect(exitButton, &QPushButton::clicked, [=]() {
+        delete battleManager;
         managementScreen();
     });
 
