@@ -13,7 +13,7 @@ Character::Character(const Character& other)
     : maxPS(other.maxPS),
       burningTurns(other.burningTurns),
       abilityUsed(other.abilityUsed),
-      moves(std::make_tuple(other.moves.first->clone(), other.moves.second->clone())),
+      moves(other.moves),
       name(other.name),
       stats(other.stats) { };
 
