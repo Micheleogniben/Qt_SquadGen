@@ -9,6 +9,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG += c++17
 
 HEADERS += type.h \
+    Characters/boss.h \
     Moves/damagemove.h \
     Moves/statisticmove.h \
     gui.h \
@@ -18,6 +19,7 @@ HEADERS += type.h \
     statistics.h
 
 SOURCES += main.cpp \
+    Characters/boss.cpp \
     Moves/damagemove.cpp \
     Moves/statisticmove.cpp \
     gui.cpp \

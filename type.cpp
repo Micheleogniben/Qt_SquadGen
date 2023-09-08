@@ -19,7 +19,8 @@ QString toText(CharType chTp){
         {CharType::Dragon, "Dragon"},
         {CharType::Goblin, "Goblin"},
         {CharType::Knight, "Knight"},
-        {CharType::Wizard, "Wizard"}
+        {CharType::Wizard, "Wizard"},
+        {CharType::Boss, "Boss"}
     };
 
     return typeToString.value(chTp);

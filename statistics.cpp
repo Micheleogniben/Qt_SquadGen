@@ -8,3 +8,4 @@ const DefaultStats clericStats = { 1,  1,  4,  1,  5,  9,  50, {Type::Light,  Ty
 const DefaultStats wizardStats = {10,  3, 10,  5,  7, 12,  75, {Type::Fire,   Type::Poison},  CharType::Wizard};
 const DefaultStats knightStats = { 1, 10,  1, 10,  4, 15,  90, {Type::Earth,  Type::Neutral}, CharType::Knight};
 const DefaultStats goblinStats = { 1,  4,  1,  2,  9,  2,  15, {Type::Poison, Type::Neutral}, CharType::Goblin};
+const DefaultStats bossStats = {15, 15, 10, 10, 7, 50, 130, {Type::Neutral} , CharType::Boss};

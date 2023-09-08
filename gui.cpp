@@ -240,7 +240,11 @@ void Gui::attack(){
         target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
         if(target){
             move->useMove(attacker,target);
+            qDebug() << attacker->getName() << " used " << move->getName() << " targeting " << target->getName()  ;
+            qDebug() << target->getLifePoints() << "    "<< move->getPhyDmg();
             battleManager->update();
+            QMessageBox::warning(nullptr, "Bad News", "Now it's your opponent's turn");
+            battleManager->opponentKombatLogic();
             battleManager->updateTurn();
         }
     }
@@ -749,8 +753,17 @@ void Gui::startScreen()
     // Add the horizontal button layout to the vertical main layout
     mainLayout->addLayout(buttonLayout);
 
-    // Set the main layout of the window
-    centralWidget()->setLayout(mainLayout); // Usa centralWidget() per ottenere il widget centrale
+    // Remove the existing layout (if any)
+    QWidget* central = centralWidget();
+    if (central->layout()) {
+        QLayout* existingLayout = central->layout();
+        central->setLayout(nullptr);
+        delete existingLayout;
+    }
+
+    // Set the new layout
+    central->setLayout(mainLayout);
+
 
     // Show the window
     show();
@@ -822,7 +835,17 @@ void Gui::managementScreen() {
     });
 
     connect(startKombatButton, &QPushButton::clicked, [this]() {
-        kombatScreen();
+        if(squad){
+            if(squad->getSize()==0) QMessageBox::critical(nullptr, "Error", "You must have at least one member in your squad");
+            else{
+                bool kombatPossible= true;
+                for(Character* character : *squad){
+                    if(character->getMovesNames()=="") kombatPossible=false;
+                }
+                if(kombatPossible) kombatScreen();
+                else QMessageBox::critical(nullptr, "Error", "You must select two Moves for each character of your squad");
+            }
+        }
     });
 }
 
@@ -847,10 +870,8 @@ void Gui::kombatScreen() {
     QWidget *opponentWidget = new QWidget(kombatWidget);
     QVBoxLayout *opponentLayout = new QVBoxLayout(opponentWidget);
 
-    Squad* opponentSquad= new Squad();
-    opponentSquad->addCharacter(new Dragon("ADAM"));
-
-    battleManager = new BattleManager(squad,opponentSquad);
+    battleManager = new BattleManager(squad,nullptr);
+    battleManager->setBossBattle(movesManager);
 
     updateKombatScreen(yourTeamLayout,opponentLayout);
 

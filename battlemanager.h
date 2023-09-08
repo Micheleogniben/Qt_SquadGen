@@ -5,7 +5,9 @@
 #include <move.h>
 #include <squad.h>
 #include <QMessageBox>
-
+#include <boss.h>
+#include <random>
+#include <movesmanager.h>
 #include <vector>
 
 class BattleManager
@@ -15,6 +17,8 @@ private:
     unsigned int turn;
 public:
     BattleManager(Squad*,Squad*);
+    bool setTeam(Squad*,int);
+    void setBossBattle(MovesManager*);
     void attack(Move*);
     void ability();
     void removeDeadCharacter(QString);
@@ -24,6 +28,7 @@ public:
     Squad* getTeam(int) const;
     void update();
     void removeDeadCharacters(Squad*);
+    void opponentKombatLogic();
     ~BattleManager();
 };
 
