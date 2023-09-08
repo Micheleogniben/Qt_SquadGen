@@ -4,6 +4,7 @@
 #include <character.h>
 #include <move.h>
 #include <squad.h>
+#include <QMessageBox>
 
 #include <vector>
 
@@ -13,14 +14,17 @@ private:
     Squad* team1, * team2;
     unsigned int turn;
 public:
-    BattleManager(Squad*);
-    void initBattle(Character*, Character*);
+    BattleManager(Squad*,Squad*);
     void attack(Move*);
     void ability();
-    void removeDeadCharacter(std::string);
+    void removeDeadCharacter(QString);
     void endBattle();
-    unsigned int getTurn() const;
-    void endTurnChecks();
+    int getTurn() const;
+    void updateTurn();
+    Squad* getTeam(int) const;
+    void update();
+    void removeDeadCharacters(Squad*);
+    ~BattleManager();
 };
 
 #endif // BATTLEMANAGER_H

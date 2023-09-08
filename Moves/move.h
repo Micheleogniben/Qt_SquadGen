@@ -1,7 +1,6 @@
 #ifndef MOVE_H
 #define MOVE_H
 
-#include "QtCore/qjsonobject.h"
 #include "type.h"
 
 class Character;
@@ -25,8 +24,6 @@ public:
     unsigned short getPhyDmg() const;
     unsigned short getMagDmg() const;
     Type getType() const;
-
-    virtual QJsonObject toJsonObj() const;
 };
 
 #endif

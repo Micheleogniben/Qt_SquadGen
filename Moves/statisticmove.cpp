@@ -19,18 +19,3 @@ void StatisticMove::useMove(Character* attacker, Character* defender) const {
     defender->setPhyDef(defender->getPhyDef() - changes.physicalDefChange * coeff);
     defender->setSpeed(defender->getSpeed() - changes.speedChange * coeff);
 }
-
-
-QJsonObject StatisticMove::toJsonObj() const {
-    QJsonObject moveObj = Move::toJsonObj();
-    QJsonObject changesObject;
-
-    changesObject["magicAtkChange"] = changes.magicAtkChange;
-    changesObject["physicalAtkChange"] = changes.physicalAtkChange;
-    changesObject["magicDefChange"] = changes.magicDefChange;
-    changesObject["physicalDefChange"] = changes.physicalDefChange;
-    changesObject["speedChange"] = changes.speedChange;
-
-    moveObj["changes"] = changesObject;
-    return moveObj;
-}

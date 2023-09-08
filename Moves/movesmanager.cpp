@@ -2,6 +2,8 @@
 #include "statisticmove.h"
 #include "damagemove.h"
 
+std::vector<Move*> MovesManager::allMoves;
+
 MovesManager::MovesManager(){
     // Mosse DamageMove
     addMove(new DamageMove("Fire Bolt", "Spara un proiettile di fuoco.", 15, 5, Type::Fire));

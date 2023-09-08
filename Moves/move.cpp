@@ -39,14 +39,3 @@ unsigned short Move::getMagDmg() const{
 unsigned short Move::getPhyDmg() const{
     return phyAtk;
 }
-
-QJsonObject Move::toJsonObj() const {
-    QJsonObject moveObj;
-    moveObj["name"] = name;
-    moveObj["description"] = desc;
-    moveObj["type"] = toText(type);
-    moveObj["charType"] = toText(charType);
-    moveObj["magAtk"] = magAtk;
-    moveObj["phyAtk"] = phyAtk;
-    return moveObj;
-}

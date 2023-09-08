@@ -64,7 +64,12 @@ CharType Character::getCharType() const{
 }
 
 QString Character::getMovesNames() const{
-    return std::get<0>(moves)->getName() + ", " + std::get<0>(moves)->getName();
+    QString movesNames="";
+    const Move* move1 = std::get<0>(moves);
+    const Move* move2 = std::get<1>(moves);
+    if (move1 && move2)
+        movesNames=move1->getName() + ", " + move2->getName();
+    return movesNames;
 }
 
 QString Character::getName() const{
@@ -109,22 +114,24 @@ void Character::clearMoves(){
     moves = {};
 }
 
-
 QJsonObject Character::toJsonObj() const {
     QJsonObject characterObj;
+    QJsonArray movesArray;
 
     characterObj["name"] = name;
+    characterObj["characterType"] = toText(getCharType());
+    characterObj["move1"] = std::get<0>(moves)->getName();
+    characterObj["move2"] = std::get<1>(moves)->getName();
 
-    characterObj["move1"] = std::get<0>(moves)->toJsonObj();
-    characterObj["move2"] = std::get<1>(moves)->toJsonObj();
+    characterObj["moves"] = movesArray;
 
     return characterObj;
 }
 
 void Character::fromJsonObj(QJsonObject characterObj){
     QString loadedName = characterObj["name"].toString();
-    QJsonObject move1Obj = characterObj["move1"].toObject();
-    QJsonObject move2Obj = characterObj["move2"].toObject();
+    QString move1Obj = characterObj["move1"].toString();
+    QString move2Obj = characterObj["move2"].toString();
 
     // Crea istanze delle mosse dai loro oggetti JSON
 
@@ -133,4 +140,9 @@ void Character::fromJsonObj(QJsonObject characterObj){
 
     name = loadedName;
     moves = {move1, move2};
+}
+
+
+std::tuple<const Move*, const Move*> Character::getMoves() const{
+    return moves;
 }

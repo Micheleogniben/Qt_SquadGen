@@ -51,6 +51,7 @@ public:
     CharType getCharType() const;
     QString getMovesNames() const;
     QString getName() const;
+    std::tuple<const Move*, const Move*> getMoves() const;
 
     void setPhyAtk(const unsigned short);
     void setMagAtk(const unsigned short);

@@ -1,4 +1,4 @@
-#include <type.h>
+#include "type.h"
 
 QString toText(Type tp){
     static QMap<Type, QString> typeToString = {
@@ -29,7 +29,7 @@ QString toText(CharType chTp){
 
 
 Type toType(QString s){
-    static QMap<QString, Type> typeToString = {
+    static QMap<QString, Type> stringToType = {
         {"", Type::Nill},
         {"earth", Type::Earth},
         {"fire", Type::Fire},
@@ -39,7 +39,7 @@ Type toType(QString s){
         {"neutral", Type::Neutral}
     };
 
-    return typeToString.value(s);
+    return stringToType.value(s);
 }
 
 CharType toCharType(QString s){

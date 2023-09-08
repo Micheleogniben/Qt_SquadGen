@@ -1,4 +1,6 @@
 #include "gui.h"
+#include "qfiledialog.h"
+#include "parser.h"
 
 
 void Gui::createMenus()
@@ -61,6 +63,191 @@ void Gui::updateRemainingCapacityLabel(const QString & characterName, int unitCo
     remainingCapacityLabel->setText("Remaining Capacity: " + QString::number(remainingCapacity));
 }
 
+//=========================
+
+void Gui::updateKombatScreen(QVBoxLayout* yourTeamLayout, QVBoxLayout* opponentLayout) {
+
+    QLayoutItem* item;
+    while ((item = yourTeamLayout->takeAt(0)) != nullptr) {
+        QWidget* widget = item->widget();
+        if (widget) {
+            yourTeamLayout->removeWidget(widget);
+            delete widget;
+        }
+        delete item;
+    }
+
+    while ((item = opponentLayout->takeAt(0)) != nullptr) {
+        QWidget* widget = item->widget();
+        if (widget) {
+            opponentLayout->removeWidget(widget);
+            delete widget;
+        }
+        delete item;
+    }
+
+    QLabel *yourTeamLabel = new QLabel("Your Squad:");
+    yourTeamLabel->setStyleSheet("font-size: 20px;color:red");
+    yourTeamLayout->addWidget(yourTeamLabel);
+
+    QLabel *opponentLabel = new QLabel("YourVictim:");
+    opponentLabel->setStyleSheet("font-size: 20px;color:red");
+    opponentLayout->addWidget(opponentLabel);
+
+    for (Character* character : *battleManager->getTeam(1)) {
+        QLabel* label = new QLabel(character->getName() + "   " + QString::number(character->getLifePoints()) + " LifeP");
+        yourTeamLayout->addWidget(label);
+    }
+
+    for (Character* character : *battleManager->getTeam(2)) {
+        QLabel* label = new QLabel(character->getName() + "   " + QString::number(character->getLifePoints()) + " LifeP");
+        opponentLayout->addWidget(label);
+    }
+}
+
+Character* Gui::chooseCharacter(Squad* squadSelected, QString title){
+    QDialog attackerSelectDialog(this);
+    attackerSelectDialog.setWindowTitle(title);
+
+    QVBoxLayout attackerSelectLayout(&attackerSelectDialog);
+
+    QLabel promptLabel("Scegli un personaggio");
+    attackerSelectLayout.addWidget(&promptLabel);
+
+    QListWidget attackerListWidget(&attackerSelectDialog);
+    attackerListWidget.setSelectionMode(QAbstractItemView::SingleSelection);
+
+    for (Character* character : *squadSelected) {
+        QListWidgetItem* item = new QListWidgetItem(character->getName());
+        attackerListWidget.addItem(item);
+    }
+
+    attackerSelectLayout.addWidget(&attackerListWidget);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &attackerSelectDialog);
+    attackerSelectLayout.addWidget(&buttonBox);
+
+    connect(&buttonBox, &QDialogButtonBox::accepted, &attackerSelectDialog, &QDialog::accept);
+    connect(&buttonBox, &QDialogButtonBox::rejected, &attackerSelectDialog, &QDialog::reject);
+
+    if (attackerSelectDialog.exec() == QDialog::Accepted) {
+        QListWidgetItem* selectedItem = attackerListWidget.currentItem();
+        if (selectedItem) {
+            QString selectedCharacterName = selectedItem->text();
+            Character* selectedCharacter = squadSelected->findByName(selectedCharacterName);
+            return selectedCharacter;
+        }
+    }
+
+    return nullptr; // Nessun personaggio selezionato o dialogo annullato
+}
+
+Move* Gui::chooseMove(Character* character) {
+    QDialog moveSelectDialog(this);
+    moveSelectDialog.setWindowTitle("Scegli una Mossa");
+
+    QVBoxLayout moveSelectLayout(&moveSelectDialog);
+
+    QLabel promptLabel("Scegli una mossa per " + character->getName() + ":");
+    moveSelectLayout.addWidget(&promptLabel);
+
+    QListWidget moveListWidget(&moveSelectDialog);
+    moveListWidget.setSelectionMode(QAbstractItemView::SingleSelection);
+
+    const std::tuple<const Move*, const Move*> availableMoves = character->getMoves();
+    const Move* firstMove = std::get<0>(availableMoves);
+    const Move* secondMove = std::get<1>(availableMoves);
+
+    QListWidgetItem* firstMoveItem = new QListWidgetItem(firstMove->getName());
+    QListWidgetItem* secondMoveItem = new QListWidgetItem(secondMove->getName());
+
+    moveListWidget.addItem(firstMoveItem);
+    moveListWidget.addItem(secondMoveItem);
+
+    moveSelectLayout.addWidget(&moveListWidget);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &moveSelectDialog);
+    moveSelectLayout.addWidget(&buttonBox);
+
+    connect(&buttonBox, &QDialogButtonBox::accepted, &moveSelectDialog, &QDialog::accept);
+    connect(&buttonBox, &QDialogButtonBox::rejected, &moveSelectDialog, &QDialog::reject);
+
+    if (moveSelectDialog.exec() == QDialog::Accepted) {
+        QListWidgetItem* selectedItem = moveListWidget.currentItem();
+        if (selectedItem) {
+            QString selectedMoveName = selectedItem->text();
+            if (selectedMoveName == firstMove->getName()) {
+                return const_cast<Move*>(firstMove); // Rimuovi const e restituisci la mossa
+            } else if (selectedMoveName == secondMove->getName()) {
+                return const_cast<Move*>(secondMove); // Rimuovi const e restituisci la mossa
+            }
+        }
+    }
+
+    return nullptr; // Nessuna mossa selezionata o dialogo annullato
+}
+
+
+int Gui::chooseKombatAction() {
+    QDialog actionSelectDialog(this);
+    actionSelectDialog.setWindowTitle("Scegli un'azione di combattimento");
+
+    QVBoxLayout actionSelectLayout(&actionSelectDialog);
+
+    QLabel promptLabel("Scegli un'azione di combattimento:");
+    actionSelectLayout.addWidget(&promptLabel);
+
+    QRadioButton* abilityRadio = new QRadioButton("Usa l'abilità");
+    QRadioButton* moveRadio = new QRadioButton("Scegli una mossa");
+
+    QButtonGroup buttonGroup(&actionSelectDialog);
+    buttonGroup.addButton(abilityRadio);
+    buttonGroup.addButton(moveRadio);
+
+    actionSelectLayout.addWidget(abilityRadio);
+    actionSelectLayout.addWidget(moveRadio);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &actionSelectDialog);
+    actionSelectLayout.addWidget(&buttonBox);
+
+    connect(&buttonBox, &QDialogButtonBox::accepted, &actionSelectDialog, &QDialog::accept);
+    connect(&buttonBox, &QDialogButtonBox::rejected, &actionSelectDialog, &QDialog::reject);
+
+    if (actionSelectDialog.exec() == QDialog::Accepted) {
+        if (abilityRadio->isChecked()) {
+            return 0; // L'utente ha scelto di usare l'abilità
+        } else if (moveRadio->isChecked()) {
+            return 1; // L'utente ha scelto di selezionare una mossa
+        }
+    }
+
+    return -1; // Nessuna scelta o dialogo annullato
+}
+
+
+void Gui::attack(){
+    Character * attacker = chooseCharacter(battleManager->getTeam(1),QString("Scegli un Personaggio con cui Attaccare"));
+    Character* target = nullptr;
+    Move* move = nullptr;
+    if(attacker) {
+        if(chooseKombatAction()==1){
+            move = chooseMove(attacker);
+        }
+        else{
+            //attacker->useAbility();
+        }
+    }
+    if(move){
+        //if(dynamic) DINAMIC CAST
+        target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
+        if(target){
+            move->useMove(attacker,target);
+            battleManager->update();
+            battleManager->updateTurn();
+        }
+    }
+
+}
 
 
 //=========================
@@ -71,6 +258,8 @@ void Gui::showCharacterInfoDialog(Character* character){
     QVBoxLayout characterInfoLayout(&characterInfoDialog);
 
     QLabel nameLabel("Nome: " + character->getName());
+    QLabel characterLabel("Character Type:  " + toText(character->getCharType()));
+    QLabel typeLabel("Types:  ");
     QLabel phAtkLabel("Danno Fisico:  " + QString::number(character->getPhyAtk()));
     QLabel magAtkLabel("Attacco Magico:   " + QString::number(character->getMagAtk()));
     QLabel phDefLabel("Difesa fisica:   "+ QString::number(character->getPhyDef()));
@@ -78,6 +267,7 @@ void Gui::showCharacterInfoDialog(Character* character){
     QLabel movesNames("Mosse:  " + character->getMovesNames());
 
     characterInfoLayout.addWidget(&nameLabel);
+    characterInfoLayout.addWidget(&characterLabel);
     characterInfoLayout.addWidget(&phAtkLabel);
     characterInfoLayout.addWidget(&magAtkLabel);
     characterInfoLayout.addWidget(&phDefLabel);
@@ -212,7 +402,6 @@ int Gui::updateMoves(Character* character) {
     QVBoxLayout mainLayout(&moveDialog);
 
     std::set<QString> movesToAdd;  // Utilizza un set invece di un vettore
-    std::vector<QString> selectedMoves;  // Vettore per le mosse selezionate
 
     // Crea una QScrollArea per la lista delle mosse
     QScrollArea scrollArea;
@@ -237,15 +426,15 @@ int Gui::updateMoves(Character* character) {
         });
         moveLayout.addWidget(infoButton);
 
-        connect(selectCheckBox, &QCheckBox::stateChanged, [&movesToAdd, &selectedMoves, &move, &selectCheckBox](int state) {
+        connect(selectCheckBox, &QCheckBox::stateChanged, [move, &movesToAdd, selectCheckBox](int state) {
             if (state == Qt::Checked) {
-                if (selectedMoves.size() < 2) {
-                    selectedMoves.push_back(move->getName());  // Aggiungi al vettore
-                } else {
-                    selectCheckBox->setCheckState(Qt::Unchecked);  // Deseleziona se già ci sono 2
+                if (selectCheckBox->isChecked()) {
+                    movesToAdd.insert(move->getName());
+                    //qDebug() << "Selected Move Name: " << move->getName();
                 }
             } else if (state == Qt::Unchecked) {
-                selectedMoves.erase(std::remove(selectedMoves.begin(), selectedMoves.end(), move->getName()), selectedMoves.end());  // Rimuovi dal vettore
+                movesToAdd.erase(move->getName());
+                //qDebug() << "Unselected Move Name: " << move->getName();
             }
         });
     }
@@ -262,13 +451,20 @@ int Gui::updateMoves(Character* character) {
     connect(&buttonBox, &QDialogButtonBox::rejected, &moveDialog, &QDialog::reject);
 
     if (moveDialog.exec() == QDialog::Accepted) {
-        if (selectedMoves.size() != 2) {
+        if (movesToAdd.size() != 2) {
             QMessageBox::critical(this, "Errore", "Devi selezionare esattamente 2 mosse per personaggio");
             return 0;
         }
-        character->clearMoves();
-        character->addMove(movesManager->moveByName(selectedMoves[0]), movesManager->moveByName(selectedMoves[1]));
-        return 2;
+        else {
+            auto it = movesToAdd.begin();
+                Move* firstMove = movesManager->moveByName(*it);
+                ++it;
+                Move* secondMove = movesManager->moveByName(*it);
+
+                character->clearMoves();
+                character->addMove(firstMove, secondMove);
+                return 2;
+        }
     }
 
     return 1;
@@ -320,11 +516,11 @@ void Gui::characterSelection(){
     mainLayout->addWidget(remainingCapacityLabel);
 
     QHash<QString,QPair<int,int>> characterMap; // Map to store character weights per unit and number of occurencies DA MODIFICARE
-    characterMap.insert("Goblin", QPair<int,int>(2,0));
-    characterMap.insert("Knight", QPair<int,int>(15,0));
-    characterMap.insert("Wizard", QPair<int,int>(12,0));
-    characterMap.insert("Cleric", QPair<int,int>(9,0));
-    characterMap.insert("Dragon", QPair<int,int>(30,0));
+    characterMap.insert("Goblin", QPair<int,int>(goblinStats.weight,0));
+    characterMap.insert("Knight", QPair<int,int>(knightStats.weight,0));
+    characterMap.insert("Wizard", QPair<int,int>(wizardStats.weight,0));
+    characterMap.insert("Cleric", QPair<int,int>(clericStats.weight,0));
+    characterMap.insert("Dragon", QPair<int,int>(dragonStats.weight,0));
 
     //Boxes
 
@@ -539,7 +735,17 @@ void Gui::startScreen()
     });
 
     connect(loadButton, &QPushButton::clicked, [&]() {
-        //Squad* squad =Parser()...
+        QString filePath = QFileDialog::getOpenFileName(
+            this,
+            "Seleziona un file",
+            QDir::homePath(),
+            "File JSON (*.json)"
+        );
+
+        if (!filePath.isEmpty())
+            squad = Parser::loadSquad(filePath);
+
+        QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
         managementScreen();
     });
 
@@ -564,7 +770,7 @@ void Gui::startScreen()
 
 
 void Gui::managementScreen() {
-    // Create the button widget
+
     QWidget *buttonWidget = new QWidget(this);
 
     // Create a vertical layout for the buttons
@@ -615,7 +821,14 @@ void Gui::managementScreen() {
 
     // Connect button clicks to lambda functions for handling
     connect(saveSquadButton, &QPushButton::clicked, [this]() {
-
+        QString filePath = QFileDialog::getSaveFileName(
+            this,
+            "Seleziona il percorso di salvataggio",
+            QDir::homePath(),  // Directory predefinita iniziale
+            "File JSON (*.json);;Tutti i file (*)"
+        );
+        if (!filePath.isEmpty())
+            Parser::saveSquad(filePath, *squad);
     });
 
     connect(editSquadButton, &QPushButton::clicked, [this]() {
@@ -624,13 +837,86 @@ void Gui::managementScreen() {
     });
 
     connect(loadSquadButton, &QPushButton::clicked, [this]() {
+        QString filePath = QFileDialog::getOpenFileName(
+            this,
+            "Seleziona un file",
+            QDir::homePath(),
+            "File JSON (*.json)"
+        );
 
+        if (!filePath.isEmpty())
+            squad = Parser::loadSquad(filePath);
+
+        QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
     });
 
     connect(startKombatButton, &QPushButton::clicked, [this]() {
-
+        kombatScreen();
     });
 }
+
+void Gui::kombatScreen() {
+
+    QWidget* managementWidget = centralWidget();
+    QWidget *kombatWidget = new QWidget(this);
+    setCentralWidget(kombatWidget);
+    delete managementWidget;
+
+    // Crea un layout principale per la finestra di combattimento
+    QVBoxLayout *mainLayout = new QVBoxLayout(kombatWidget);
+
+    // Crea un layout orizzontale per la parte superiore della finestra (informazioni sulla squadra)
+    QHBoxLayout *topLayout = new QHBoxLayout();
+
+    // Crea una sezione per visualizzare i membri della tua squadra
+    QWidget *yourTeamWidget = new QWidget(kombatWidget);
+    QVBoxLayout *yourTeamLayout = new QVBoxLayout(yourTeamWidget);
+
+    // Crea una sezione per visualizzare l'avversario
+    QWidget *opponentWidget = new QWidget(kombatWidget);
+    QVBoxLayout *opponentLayout = new QVBoxLayout(opponentWidget);
+
+    Squad* opponentSquad= new Squad();
+    opponentSquad->addCharacter(new Dragon("ADAM"));
+
+    battleManager = new BattleManager(squad,opponentSquad);
+
+    updateKombatScreen(yourTeamLayout,opponentLayout);
+
+    topLayout->addWidget(yourTeamWidget);
+    topLayout->addWidget(opponentWidget);
+
+    mainLayout->addLayout(topLayout);
+
+    // Crea un pulsante per l'attacco
+    QPushButton *attackButton = new QPushButton("Attacca", kombatWidget);
+
+    mainLayout->addWidget(attackButton);
+
+    QHBoxLayout *exitLayout = new QHBoxLayout();
+
+    // Crea un pulsante "Esci" più piccolo
+    QPushButton *exitButton = new QPushButton("Esci", kombatWidget);
+    exitButton->setFixedSize(80, 30); // Imposta le dimensioni desiderate
+
+    // Aggiungi il pulsante "Esci" al layout orizzontale
+    exitLayout->addWidget(exitButton, Qt::AlignRight | Qt::AlignBottom);
+
+    // Imposta il layout principale per la finestra di combattimento
+    kombatWidget->setLayout(mainLayout);
+
+    // Connetti il pulsante "Attacca" a una funzione per gestire l'attacco
+    connect(attackButton, &QPushButton::clicked,[=](){
+        attack();
+        updateKombatScreen(yourTeamLayout,opponentLayout);
+    });
+
+    connect(exitButton, &QPushButton::clicked, [=]() {
+        managementScreen();
+    });
+
+}
+
 
 //=========================
 
@@ -638,7 +924,7 @@ void Gui::managementScreen() {
 Gui::Gui(QWidget* parent): QMainWindow(parent)
 {
     movesManager=new MovesManager();
-    battleManager=new BattleManager(nullptr);
+    battleManager=nullptr;
     squad=new Squad();
 
     createMenus();

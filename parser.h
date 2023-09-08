@@ -7,12 +7,14 @@ class Parser
 {
 public:
     Parser();
-    Squad loadSquad(const QString& filePath);
-    bool saveSquad(const QString& filePath, const Squad& squad);
-    static Move* loadMove(const QJsonObject& moveObject);
+    static Squad* loadSquad(const QString& filePath);
+    static bool saveSquad(const QString& filePath, const Squad& squad);
+    static Move* loadMove(const QString name);
+
 
 private:
-    std::map<QString, std::function<Character*()>> charLoader;
+    using CharacterLoaderType = std::map<CharType, std::function<Character*(const QString)>>;
+    static CharacterLoaderType charLoader;
 };
 
 

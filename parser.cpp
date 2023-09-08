@@ -1,22 +1,22 @@
 #include "parser.h"
 #include "dragon.h"
 #include "cleric.h"
-#include "statisticmove.h"
 #include "wizard.h"
 #include "knight.h"
 #include "goblin.h"
-#include "damagemove.h"
+#include "movesmanager.h"
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QFile>
 
-Parser::Parser(){
-    charLoader["Dragon"] = [] { return new Dragon(""); };
-    charLoader["Cleric"] = [] { return new Cleric(""); };
-    charLoader["Wizard"] = [] { return new Wizard(""); };
-    charLoader["Knight"] = [] { return new Knight(""); };
-    charLoader["Goblin"] = [] { return new Goblin("", 1); };
-}
+Parser::CharacterLoaderType Parser::charLoader = {
+    {CharType::Dragon, [](const QString name) { return new Dragon(name); }},
+    {CharType::Cleric, [](const QString name) { return new Cleric(name); }},
+    {CharType::Wizard, [](const QString name) { return new Wizard(name); }},
+    {CharType::Knight, [](const QString name) { return new Knight(name); }},
+    {CharType::Goblin, [](const QString name) { return new Goblin(name, 1); }}
+};
+
 
 bool Parser::saveSquad(const QString& filePath, const Squad& squad) {
     QJsonObject squadObject;
@@ -41,8 +41,8 @@ bool Parser::saveSquad(const QString& filePath, const Squad& squad) {
 }
 
 
-Squad Parser::loadSquad(const QString& filePath) {
-    Squad squad;
+Squad* Parser::loadSquad(const QString& filePath) {
+    Squad* squad = new Squad();
     QFile file(filePath);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -60,14 +60,14 @@ Squad Parser::loadSquad(const QString& filePath) {
     for (const QJsonValue& characterValue : charactersArray) {
         QJsonObject characterObject = characterValue.toObject();
 
-        QString characterType = characterObject["characterType"].toString();
+        CharType characterType = toCharType(characterObject["characterType"].toString());
 
         // Verifica se il costruttore per il tipo di personaggio esiste nella mappa
         if (charLoader.find(characterType) != charLoader.end()) {
-            Character* character = charLoader[characterType]();
+            Character* character = charLoader[characterType](characterObject["name"].toString());
             character->fromJsonObj(characterObject);
 
-            squad.addCharacter(character);
+            squad->addCharacter(character);
         }
     }
 
@@ -75,8 +75,13 @@ Squad Parser::loadSquad(const QString& filePath) {
 }
 
 
-Move* Parser::loadMove(const QJsonObject& moveObject) {
-    QString name = moveObject["name"].toString();
+Move* Parser::loadMove(const QString name) {
+    for (Move* m : MovesManager::allMoves)
+        if (m->getName() == name)
+            return m;
+    return nullptr;
+}
+    /*
     QString desc = moveObject["desc"].toString();
     Type type = toType(moveObject["type"].toString());
     CharType charType = toCharType(moveObject["charType"].toString());
@@ -112,4 +117,4 @@ Move* Parser::loadMove(const QJsonObject& moveObject) {
 
     return res;
 }
-
+*/

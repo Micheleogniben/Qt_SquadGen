@@ -9,14 +9,13 @@
 
 class MovesManager
 {
-private:
-    std::vector<Move*> allMoves;
-
 public:
     MovesManager();
     void addMove(Move*);
     std::vector<Move*> getCompatibleMoves(const Character*) const;
     Move* moveByName(QString) const;
+
+    static std::vector<Move*> allMoves;
 };
 
 #endif // MOVESMANAGER_H
