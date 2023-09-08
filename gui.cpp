@@ -44,7 +44,7 @@ bool Gui::enoughCapacity(const QString &characterName, const int unitCount,  con
         if(key!=characterName)
             totalSelectedWeight += value.first * value.second;
     }
-    int remainingWeight = Squad::capacity - (totalSelectedWeight + characterMap[characterName].first *unitCount) ;
+    int remainingWeight = squad->getCurrentCapacity() - (totalSelectedWeight + characterMap[characterName].first *unitCount) ;
     if(remainingWeight  >= 0 ) return true;
     else return false;
 }
@@ -945,6 +945,7 @@ void Gui::kombatScreen() {
         }
         if(i==2){
             QMessageBox::warning(nullptr, "Victory", "You smashed your enemy");
+
             delete battleManager;
             managementScreen();
         }

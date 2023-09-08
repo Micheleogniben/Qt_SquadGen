@@ -25,11 +25,11 @@ int BattleManager::update() {
     removeDeadCharacters(team1);
     removeDeadCharacters(team2);
 
-    if (team1->isEmpty()) {
+    if (team1->getSize()==0) {
         return 1;
     }
 
-    if (team2->isEmpty()) {
+    if (team2->getSize()==0) {
         return 2;
     }
     return 0;
@@ -38,8 +38,10 @@ int BattleManager::update() {
 void BattleManager::removeDeadCharacters(Squad* team) {
     for (Character* character: *team) {
         if (character->getLifePoints() <= 0) {
-            team->deleteByName(character->getName());
-            QMessageBox::warning(nullptr, "Personaggio Morto", character->getName() + " è morto");
+            QString name = character->getName();
+            team->deleteByName(name);
+            QMessageBox::warning(nullptr, "Personaggio Morto", name + " è morto");
+            break;
         }
     }
 }
