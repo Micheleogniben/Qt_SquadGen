@@ -3,6 +3,8 @@
 
 Cleric::Cleric(QString n) : Character(clericStats, n) { };
 
+Cleric::Cleric(const Cleric& other) : Character(other) { };
+
 bool Cleric::useAbility(Character* teammate){
     if (getAbilityUsed())
         return false;

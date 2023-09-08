@@ -6,6 +6,7 @@
 class Squad {
 public:
     Squad();
+    Squad(const Squad&);
     ~Squad();
 
     Character* getFront() const;

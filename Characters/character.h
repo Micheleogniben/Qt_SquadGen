@@ -32,9 +32,10 @@ private:
     Statistics stats;
 public:
     Character(DefaultStats,QString);
+    Character(const Character&);
     virtual ~Character();
 
-    virtual bool useAbility(Character*) = 0;
+    virtual bool useAbility(Character* =nullptr) = 0;
     void addMove(const Move*, const Move*);
 
     unsigned short getPhyAtk() const;

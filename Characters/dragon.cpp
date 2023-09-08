@@ -4,6 +4,8 @@
 
 Dragon::Dragon(QString n) : Character(dragonStats, n) { };
 
+Dragon::Dragon(const Dragon& other) : Character(other) { };
+
 bool Dragon::useAbility(Character* target){
     if (getAbilityUsed())
         return false;

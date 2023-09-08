@@ -8,6 +8,7 @@ class Dragon : public Character
 {
 public:
     Dragon(QString);
+    Dragon(const Dragon&);
     bool useAbility(Character*) override;
 };
 

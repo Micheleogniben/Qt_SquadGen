@@ -6,6 +6,8 @@ Goblin::Goblin(QString n, unsigned short a) : Character(goblinStats,n), amount(a
     Character::setLifePoints(getMaxPS() * amount);
 }
 
+Goblin::Goblin(const Goblin& other) : Character(other), amount(other.amount) { };
+
 // L'abilità dei goblin consiste nell'aumentare del 10% ad ogni turno l'attacco, sia magico che fisico
 bool Goblin::useAbility(Character*){
     setPhyAtk(getPhyAtk() * 0.1 + getPhyAtk());

@@ -10,6 +10,7 @@ private:
     unsigned short amount;
 public:
     Goblin(QString, unsigned short);
+    Goblin(const Goblin&);
     bool useAbility(Character*) override;
     void setLifePoints(const unsigned short) override;
 

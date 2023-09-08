@@ -2,6 +2,8 @@
 
 Wizard::Wizard(QString n) : Character(wizardStats,n) { };
 
+Wizard::Wizard(const Wizard& other) : Character(other) { };
+
 // L'abilità dello stregone consiste nel ridurre del 30% ogni statistica dell'avversario (esclusa la vita)
 bool Wizard::useAbility(Character* enemy){
     if (getAbilityUsed())

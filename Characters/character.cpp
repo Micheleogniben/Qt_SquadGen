@@ -8,6 +8,15 @@
 Character::Character(DefaultStats d, QString n) :
     maxPS(d.lifePts), burningTurns(0), abilityUsed(false), name(n), stats{d.magAtk, d.phyAtk, d.magDef, d.phyDef, d.speed, d.weight, d.lifePts, d.types, d.charType}  { };
 
+
+Character::Character(const Character& other)
+    : maxPS(other.maxPS),
+      burningTurns(other.burningTurns),
+      abilityUsed(other.abilityUsed),
+      moves(std::make_tuple(other.moves.first->clone(), other.moves.second->clone())),
+      name(other.name),
+      stats(other.stats) { };
+
 Character::~Character() = default;
 
 void Character::addMove(const Move* m1, const Move* m2){
