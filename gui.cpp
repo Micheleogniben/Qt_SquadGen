@@ -230,16 +230,20 @@ int Gui::attack(){
     Character* target = nullptr;
     Move* move = nullptr;
     if(attacker) {
-        if(chooseKombatAction()==1){
+        int action = chooseKombatAction();
+        if(action==1){
             move = chooseMove(attacker);
         }
-        else{
-            //attacker->useAbility();
+        if(action==0){
+            bool abilityUsable = attacker->useAbility(0);
+            if(!abilityUsable) QMessageBox::critical(nullptr, "Error", "Ability yet Used");
+            else QMessageBox::warning(nullptr, "Ability used" , attacker->getName() + " used his ability");
         }
+        else return 0;
     }
     if(move){
-        //if(dynamic) DINAMIC CAST
-        target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
+        if(dynamic_cast<DamageMove*>(move)) target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
+        else target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target"));
         if(target){
             move->useMove(attacker,target);
             qDebug() << attacker->getName() << " used " << move->getName() << " targeting " << target->getName()  ;
@@ -247,14 +251,13 @@ int Gui::attack(){
 
             int i=battleManager->update();
             if(i!=0) return i;
-
-            QMessageBox::warning(nullptr, "Bad News", "Now it's your opponent's turn");
-            battleManager->opponentKombatLogic();
-            i=battleManager->update();
-            if(i!=0) return i;
-            battleManager->updateTurn();
         }
     }
+    QMessageBox::warning(nullptr, "Bad News", "Now it's your opponent's turn");
+    battleManager->opponentKombatLogic();
+    int i=battleManager->update();
+    if(i!=0) return i;
+    battleManager->updateTurn();
 }
 
 
