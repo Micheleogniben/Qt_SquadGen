@@ -116,14 +116,11 @@ void Character::clearMoves(){
 
 QJsonObject Character::toJsonObj() const {
     QJsonObject characterObj;
-    QJsonArray movesArray;
 
     characterObj["name"] = name;
     characterObj["characterType"] = toText(getCharType());
     characterObj["move1"] = std::get<0>(moves)->getName();
     characterObj["move2"] = std::get<1>(moves)->getName();
-
-    characterObj["moves"] = movesArray;
 
     return characterObj;
 }
