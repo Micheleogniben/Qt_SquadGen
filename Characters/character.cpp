@@ -115,8 +115,8 @@ void Character::setAbilityUsed(const bool val){
     abilityUsed = val;
 }
 
-void Character::setLifePoints(const unsigned short amount){
-    stats.lifePoints = amount < 0 ? 0 : amount > maxPS ? maxPS : amount;
+void Character::setLifePoints(const short amount){
+    stats.lifePoints = amount < 0 ? 0 : amount;
 }
 
 void Character::clearMoves(){

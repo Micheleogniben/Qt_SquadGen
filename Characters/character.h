@@ -62,7 +62,7 @@ public:
     void setSpeed(const unsigned short);
     void setBurning(const unsigned short);
     void setAbilityUsed(const bool);
-    virtual void setLifePoints(const unsigned short);
+    virtual void setLifePoints(const short);
 
     void clearMoves();
 

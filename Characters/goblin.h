@@ -13,12 +13,13 @@ public:
     Goblin(const Goblin&);
     bool useAbility(Character*) override;
     unsigned short getWeight() const override;
-    void setLifePoints(const unsigned short) override;
+    void setLifePoints(const short) override;
 
     unsigned short getAmount() const;
     void setAmount(unsigned short);
 
     QJsonObject toJsonObj() const override;
+    void fromJsonObj(QJsonObject characterObj) override;
 
     static QString getAbilityDescription(){
         return QString("Potenziamento attacco fisico e magico");

@@ -24,11 +24,9 @@ unsigned short DamageMove::useMove(Character* attacker, Character* defender) con
     if (dynamic_cast<Goblin*>(attacker))
         dmg *= static_cast<Goblin*>(attacker)->getAmount();
 
-    defender->setLifePoints(defender->getLifePoints() - dmg);
-
     int lifePointsRemaining = defender->getLifePoints() - dmg;
-    if(lifePointsRemaining<0)
-        lifePointsRemaining=0;
+    //if(lifePointsRemaining<0)
+    //    lifePointsRemaining=0;
 
     defender->setLifePoints(lifePointsRemaining);
     return dmg;
