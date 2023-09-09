@@ -15,7 +15,7 @@ private:
 public:
     Move(QString, QString, Type, CharType, unsigned short, unsigned short);
     bool isCompatible(const Character*) const;
-    virtual void useMove(Character*, Character*) const =0;
+    virtual unsigned short useMove(Character*, Character*) const =0;
     virtual ~Move();
 
 

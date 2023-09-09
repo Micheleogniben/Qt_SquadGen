@@ -8,7 +8,7 @@ class DamageMove : public Move
 public:
     DamageMove(QString, QString, unsigned short, unsigned short, CharType);
     DamageMove(QString, QString, unsigned short, unsigned short, Type);
-    void useMove(Character*, Character*) const override;
+    unsigned short useMove(Character*, Character*) const override;
 };
 
 #endif // DAMAGEMOVE_H

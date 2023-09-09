@@ -19,23 +19,23 @@ Parser::CharacterLoaderType Parser::charLoader = {
 
 
 bool Parser::saveSquad(const QString& filePath, const Squad& squad) {
-    QJsonObject squadObject;
-    QJsonArray charactersArray;
+        QJsonObject squadObject;
+        QJsonArray charactersArray;
 
-    for (Squad::Iterator it = squad.begin(); it != squad.end(); ++it)
-        charactersArray.append((*it)->toJsonObj());
+        for (Squad::Iterator it = squad.begin(); it != squad.end(); ++it)
+            charactersArray.append((*it)->toJsonObj());
 
-    squadObject["characters"] = charactersArray;
+        squadObject["characters"] = charactersArray;
 
-    QJsonDocument doc(squadObject);
-    QFile file(filePath);
+        QJsonDocument doc(squadObject);
+        QFile file(filePath);
 
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        return false;
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+            return false;
 
-    QTextStream stream(&file);
-    stream << doc.toJson();
-    file.close();
+        QTextStream stream(&file);
+        stream << doc.toJson();
+        file.close();
 
     return true;
 }
@@ -81,40 +81,3 @@ Move* Parser::loadMove(const QString name) {
             return m;
     return nullptr;
 }
-    /*
-    QString desc = moveObject["desc"].toString();
-    Type type = toType(moveObject["type"].toString());
-    CharType charType = toCharType(moveObject["charType"].toString());
-
-    unsigned short magAtk = static_cast<unsigned short>(moveObject["magAtk"].toInt());
-    unsigned short phyAtk = static_cast<unsigned short>(moveObject["phyAtk"].toInt());
-    Move* res;
-
-    if (moveObject.contains("changes")){
-        QJsonObject changesObject = moveObject["changes"].toObject();
-
-        // Estrai i campi da "changesObject" e assegna i valori all'oggetto StatisticChanges
-
-        // Maschera bit per ottenere solo i primi 5 bit (valori a 5 bit con segno)
-        StatisticChanges changes;
-        changes.magicAtkChange = static_cast<short>(changesObject["magicAtkChange"].toVariant().toInt());
-        changes.physicalAtkChange = static_cast<short>(changesObject["physicalAtkChange"].toVariant().toInt());
-        changes.magicDefChange = static_cast<short>(changesObject["magicDefChange"].toVariant().toInt());
-        changes.physicalDefChange = static_cast<short>(changesObject["physicalDefChange"].toVariant().toInt());
-        changes.speedChange = static_cast<short>(changesObject["speedChange"].toVariant().toInt());
-
-        if (type == Type::Nill)
-            res = new StatisticMove(name, desc, changes, charType);
-        else
-            res = new StatisticMove(name, desc, changes, type);
-
-    } else {
-        if (type == Type::Nill)
-            res = new DamageMove(name, desc, magAtk, phyAtk, charType);
-        else
-            res = new DamageMove(name, desc, magAtk, phyAtk, type);
-    }
-
-    return res;
-}
-*/

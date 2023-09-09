@@ -8,7 +8,7 @@ StatisticMove::StatisticMove(QString name, QString description, StatisticChanges
     : Move(name, description, type, CharType::Nill, 0, 0), changes(statChange) {}
 
 
-void StatisticMove::useMove(Character* attacker, Character* defender) const {
+unsigned short StatisticMove::useMove(Character* attacker, Character* defender) const {
     unsigned short magAtk = attacker->getMagAtk(),
             magDef = defender->getMagDef(),
             coeff = magAtk / magDef;
@@ -18,4 +18,5 @@ void StatisticMove::useMove(Character* attacker, Character* defender) const {
     defender->setMagDef(defender->getMagDef() - changes.magicDefChange * coeff);
     defender->setPhyDef(defender->getPhyDef() - changes.physicalDefChange * coeff);
     defender->setSpeed(defender->getSpeed() - changes.speedChange * coeff);
+    return 0;
 }

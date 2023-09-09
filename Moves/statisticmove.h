@@ -18,7 +18,7 @@ class StatisticMove : public Move
 public:
     StatisticMove(QString, QString, StatisticChanges, Type);
     StatisticMove(QString, QString, StatisticChanges, CharType);
-    void useMove(Character*, Character*) const override;
+    unsigned short useMove(Character*, Character*) const override;
 
 private:
     StatisticChanges changes;
