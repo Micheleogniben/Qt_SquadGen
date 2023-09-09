@@ -35,7 +35,7 @@ void Goblin::setAmount(unsigned short newValue){
 QJsonObject Goblin::toJsonObj() const{
     QJsonObject characterObj = Character::toJsonObj();
     characterObj["amount"] = amount;
-    characterObj["lifePts"] = amount * getMaxPS();
+    //characterObj["lifePts"] = amount * getMaxPS();
     return characterObj;
 }
 
