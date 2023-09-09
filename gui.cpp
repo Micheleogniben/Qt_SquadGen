@@ -701,7 +701,7 @@ void Gui::startScreen()
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
-    QLabel *titleLabel = new QLabel("BENVENUTI IN QTKombat");
+    QLabel *titleLabel = new QLabel("BENVENUTO IN QTKombat");
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("font-size: 24px; font-weight: bold;");
 
