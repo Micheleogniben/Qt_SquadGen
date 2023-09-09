@@ -429,7 +429,7 @@ int Gui::updateMoves(Character* character) {
     QWidget* scrollContent = new QWidget(&scrollArea);
     QVBoxLayout moveLayout(scrollContent);
 
-    for (Move* move : movesManager->getCompatibleMoves(character)) {
+    for (Move* move : MovesManager::getCompatibleMoves(character)) {
         QVBoxLayout *itemLayout = new QVBoxLayout();
 
         QLabel* moveLabel = new QLabel(move->getName());
@@ -756,18 +756,24 @@ void Gui::startScreen()
     });
 
     connect(loadButton, &QPushButton::clicked, [&]() {
-        QString filePath = QFileDialog::getOpenFileName(
-            this,
-            "Seleziona un file",
-            QDir::homePath(),
-            "File JSON (*.json)"
-        );
+        try {
+            QString filePath = QFileDialog::getOpenFileName(
+                this,
+                "Seleziona un file",
+                QDir::homePath(),
+                "File JSON (*.json)"
+            );
 
-        if (!filePath.isEmpty())
+            if (filePath.isEmpty())
+                throw std::runtime_error("Path not selected");
+
             squad = Parser::loadSquad(filePath);
+            QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
+            managementScreen();
 
-        QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
-        managementScreen();
+        } catch (const std::exception& e) {
+            QMessageBox::warning(this, "Error", "An error occurred during saving:" + QString(e.what()));
+        }
     });
 
     // Add the buttons to the horizontal button layout
@@ -858,8 +864,12 @@ void Gui::managementScreen() {
                 QDir::homePath(),  // Directory predefinita iniziale
                 "File JSON (*.json);;Tutti i file (*)"
             );
-            if (!filePath.isEmpty())
+            if (!filePath.isEmpty()){
                 Parser::saveSquad(filePath, *squad);
+                QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
+            } else
+                throw std::runtime_error("Path not selected");
+
         } catch (const std::exception& e) {
             QMessageBox::warning(this, "Error", "An error occurred during saving:" + QString(e.what()));
         }
@@ -871,17 +881,23 @@ void Gui::managementScreen() {
     });
 
     connect(loadSquadButton, &QPushButton::clicked, [this]() {
-        QString filePath = QFileDialog::getOpenFileName(
-            this,
-            "Seleziona un file",
-            QDir::homePath(),
-            "File JSON (*.json)"
-        );
+        try {
+            QString filePath = QFileDialog::getOpenFileName(
+                this,
+                "Seleziona un file",
+                QDir::homePath(),
+                "File JSON (*.json)"
+            );
 
-        if (!filePath.isEmpty())
-            squad = Parser::loadSquad(filePath);
+            if (!filePath.isEmpty()){
+                squad = Parser::loadSquad(filePath);
+                QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
+            } else
+                throw std::runtime_error("Path not selected");
 
-        QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
+        } catch (const std::exception& e) {
+            QMessageBox::warning(this, "Error", "An error occurred during saving:" + QString(e.what()));
+        }
     });
 
     connect(startKombatButton, &QPushButton::clicked, [this]() {

@@ -12,7 +12,7 @@ class MovesManager
 public:
     MovesManager();
     void addMove(Move*);
-    std::vector<Move*> getCompatibleMoves(const Character*) const;
+    static std::vector<Move*> getCompatibleMoves(const Character*);
     Move* moveByName(QString) const;
 
     static std::vector<Move*> allMoves;

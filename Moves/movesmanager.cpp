@@ -58,7 +58,7 @@ void MovesManager::addMove(Move* move){
     allMoves.push_back(move);
 }
 
-std::vector<Move*> MovesManager::getCompatibleMoves(const Character* ch) const {
+std::vector<Move*> MovesManager::getCompatibleMoves(const Character* ch){
     std::vector<Move*> moves;
     for (const auto move : allMoves)
         if (move->isCompatible(ch))

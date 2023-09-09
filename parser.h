@@ -8,8 +8,8 @@ class Parser
 public:
     Parser();
     static Squad* loadSquad(const QString& filePath);
-    static bool saveSquad(const QString& filePath, const Squad& squad);
-    static Move* loadMove(const QString name);
+    static void saveSquad(const QString& filePath, const Squad& squad);
+    static Move* loadMove(const QString name, Character* character);
 
 
 private:
