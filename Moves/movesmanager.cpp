@@ -38,8 +38,8 @@ MovesManager::MovesManager(){
     addMove(new DamageMove("Goblin Ambush", "Attacca di sorpresa da goblin.", 25, 15, CharType::Goblin));
     addMove(new DamageMove("Arcane Missile", "Scatena una pioggia di missili magici.", 20, 10, CharType::Wizard));
     addMove(new DamageMove("Lightning Bolt", "Lancia un fulmine devastante.", 30, 15, CharType::Wizard));
-    addMove(new DamageMove("Abyss", "Crea una voragine nel terreno", 50,10,CharType::Boss));
-    addMove(new DamageMove("God's tear", "Scatena una forza arcana", 100,100,CharType::Boss));
+    addMove(new DamageMove("Abyss", "Crea una voragine nel terreno", 30,10,CharType::Boss));
+    addMove(new DamageMove("God's tear", "Scatena una forza arcana", 25,25,CharType::Boss));
 
 
 
@@ -58,7 +58,7 @@ void MovesManager::addMove(Move* move){
     allMoves.push_back(move);
 }
 
-std::vector<Move*> MovesManager::getCompatibleMoves(const Character* ch){
+std::vector<Move*> MovesManager::getCompatibleMoves(const Character* ch) const {
     std::vector<Move*> moves;
     for (const auto move : allMoves)
         if (move->isCompatible(ch))

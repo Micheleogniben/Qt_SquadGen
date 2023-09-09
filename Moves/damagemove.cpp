@@ -21,6 +21,9 @@ unsigned short DamageMove::useMove(Character* attacker, Character* defender) con
 
     unsigned short dmg = static_cast<unsigned short>(this->getMagDmg() * magCoeff + this->getPhyDmg() * phyCoeff);
 
-    defender->setLifePoints(defender->getLifePoints() - dmg);
+    int lifePointsRemaining = defender->getLifePoints() - dmg;
+    if(lifePointsRemaining<0) lifePointsRemaining=0;
+
+    defender->setLifePoints(lifePointsRemaining);
     return dmg;
 }
