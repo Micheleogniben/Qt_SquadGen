@@ -157,7 +157,7 @@ Move* Gui::chooseMove(Character* character) {
 }
 
 
-int Gui::chooseKombatAction() {
+QString Gui::chooseKombatAction() {
     QDialog actionSelectDialog(this);
     actionSelectDialog.setWindowTitle("Scegli un'azione di combattimento");
 
@@ -184,67 +184,62 @@ int Gui::chooseKombatAction() {
 
     if (actionSelectDialog.exec() == QDialog::Accepted) {
         if (abilityRadio->isChecked()) {
-            return 0;
+            return QString("Ability");
         } else if (moveRadio->isChecked()) {
-            return 1;
+            return QString("Move");
         }
     }
 
-    return -1;
+    return QString("");
 }
 
 
 int Gui::attack(){
     Character * attacker = chooseCharacter(battleManager->getTeam(1),QString("Scegli un Personaggio con cui Attaccare"));
+    if(!attacker) return 0;
+
     Character* target = nullptr;
+
     Move* move = nullptr;
-    if(attacker) {
-        int action = chooseKombatAction();
-        if(action==1){
-            move = chooseMove(attacker);
-        }
-        else if(action==0){
-            bool abilityUsed = attacker->getAbilityUsed();
-            if(abilityUsed){ QMessageBox::critical(nullptr, "Errore", "Abilitá giá usata"); return 0;}
-            else{
-                CharType chty = attacker->getCharType();
-                bool abFr, abTar;
 
-                if(chty==CharType::Goblin){ abFr = Goblin::abilityFriendly;  abTar = Goblin::abilityHasTarget;}
-                if(chty==CharType::Knight){ abFr = Knight::abilityFriendly;  abTar = Knight::abilityHasTarget;}
-                if(chty==CharType::Wizard){ abFr = Wizard::abilityFriendly;  abTar = Wizard::abilityHasTarget;}
-                if(chty==CharType::Cleric){ abFr = Cleric::abilityFriendly;  abTar = Cleric::abilityHasTarget;}
-                if(chty==CharType::Dragon){ abFr = Dragon::abilityFriendly;  abTar = Dragon::abilityHasTarget;}
+    QString action = chooseKombatAction();
 
-                if(!abTar) { attacker->useAbility(nullptr); QMessageBox::warning(nullptr, "Abilitá usata correttamente" , attacker->getName() + " ha usato la sua abilitá"); }
+    if(action=="Move"){
+        move = chooseMove(attacker);
+        if(!move) return 0;
 
-                else if(abTar && abFr){ target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target")); if(target==0) return 0; }
-                else if(abTar && !abFr){ target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target")); if(target==0) return 0; }
-
-                if(target) { attacker->useAbility(target); QMessageBox::warning(nullptr, "Abilitá usata correttamente" , attacker->getName() + " ha usato la sua abilitá su " + target->getName() );}
-            }
-        }
-        else return 0;
-    }
-    if(move){
         if(dynamic_cast<StatisticMove*>(move) && static_cast<StatisticMove*>(move)->isFriendly()){
             target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target"));
         }
         else target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
-        if(target){
-            QMessageBox::warning(nullptr,"Mossa eseguita","Danni inflitti: "+ QString::number(move->useMove(attacker,target)));
-            qDebug() << attacker->getName() << " ha usato " << move->getName() << " colpendo " << target->getName()  ;
-        }
+
+        if(target) return battleManager->turnLogic(attacker,target,move,action);
+        else return 0;
     }
 
-    int i=battleManager->update();
-    if(i!=0) return i;
-    QMessageBox::warning(nullptr, "Brutte Notizie", "Ora é il turno del tuo avversario");
-    battleManager->opponentKombatLogic();
-    i=battleManager->update();
-    if(i!=0) return i;
-    battleManager->updateTurn();
-    return 0;
+    else if(action=="Ability"){
+        bool abilityUsed = attacker->getAbilityUsed();
+        if(abilityUsed){ QMessageBox::critical(nullptr, "Errore", "Abilitá giá usata"); return 0;}
+        else{
+            CharType chty = attacker->getCharType();
+            bool abFr, abTar;
+
+            if(chty==CharType::Goblin){ abFr = Goblin::abilityFriendly;  abTar = Goblin::abilityHasTarget;}
+            if(chty==CharType::Knight){ abFr = Knight::abilityFriendly;  abTar = Knight::abilityHasTarget;}
+            if(chty==CharType::Wizard){ abFr = Wizard::abilityFriendly;  abTar = Wizard::abilityHasTarget;}
+            if(chty==CharType::Cleric){ abFr = Cleric::abilityFriendly;  abTar = Cleric::abilityHasTarget;}
+            if(chty==CharType::Dragon){ abFr = Dragon::abilityFriendly;  abTar = Dragon::abilityHasTarget;}
+
+            if(!abTar) return battleManager->turnLogic(attacker,nullptr,nullptr,action);
+
+            else if(abTar && abFr){ target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target")); if(target==0) return 0; }
+            else if(abTar && !abFr){ target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target")); if(target==0) return 0; }
+
+            if(target) return battleManager->turnLogic(attacker,target,nullptr,action);
+            else return 0;
+        }
+    }
+    else return 0;
 }
 
 

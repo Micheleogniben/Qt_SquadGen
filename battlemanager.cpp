@@ -83,23 +83,74 @@ void BattleManager::setBossBattle(MovesManager* m){
     team2->addCharacter(boss);
 }
 
-void BattleManager::opponentKombatLogic() const{
+int BattleManager::turnLogic(Character *attacker, Character *target, Move *move, QString action){
+
+    Character* opponent = nullptr;
+
+    int i = getRandomInt(0,team2->getSize()-1);
+    for(Character* character: *team2){
+        if(i==0) opponent=character;
+        i--;
+    }
+
+    int toReturn;
+
+    if(attacker->getSpeed()>=opponent->getSpeed()){
+        QMessageBox::warning(nullptr,"Primo attacco",attacker->getName() + " é piú veloce di " + opponent->getName() +", attaccherá per primo");
+        QString name = opponent->getName();
+        teamKombatLogic(attacker,target,move,action);
+        toReturn = update();
+        if(!team2->findByName(name)){
+            QMessageBox::warning(nullptr,"Morte Prematura",name + " é morto prima di poter eseguire il suo attacco");
+            return toReturn;
+        }
+        opponentKombatLogic(opponent);
+    }
+
+    else{
+        QMessageBox::warning(nullptr,"Primo attacco", opponent->getName() + " é piú veloce di " + attacker->getName() +", attaccherá per primo");
+        QString name = attacker->getName();
+        opponentKombatLogic(opponent);
+        toReturn=update();
+        if(!team1->findByName(name)){
+            QMessageBox::warning(nullptr,"Morte Prematura",name + " é morto prima di poter eseguire il suo attacco");
+            return toReturn;
+        }
+        teamKombatLogic(attacker,target,move,action);
+    }
+    return update();
+}
+
+void BattleManager::teamKombatLogic(Character *attacker, Character *target, Move *move, QString action){
+    if(action == "Move"){
+        QMessageBox::warning(nullptr, "Attacco eseguito", attacker->getName() + " ha usato " + move->getName() + " colpendo " +target->getName());
+        QMessageBox::warning(nullptr,"Mossa eseguita","Danni inflitti: "+ QString::number(move->useMove(attacker,target)));
+    }
+    else if(action == "Ability"){
+        if(target){
+            attacker->useAbility(target);
+            QMessageBox::warning(nullptr, "Abilitá usata correttamente" , attacker->getName() + " ha usato la sua abilitá su " + target->getName() );
+        }
+        else{
+            attacker->useAbility(nullptr);
+            QMessageBox::warning(nullptr, "Abilitá usata correttamente" , attacker->getName() + " ha usato la sua abilitá");
+        }
+    }
+    else QMessageBox::critical(nullptr,"Fatal Error","There was a problem, the action does not have an implementation");
+}
+
+void BattleManager::opponentKombatLogic(Character* attacker){
+
+    QMessageBox::warning(nullptr, "Brutte Notizie", "Ora é il turno del tuo avversario");
 
     if(!team1 || !team2) return;
     if(team1 && team1->getSize()==0) return;
     if(team2 && team2->getSize()==0) return;
 
-    Character* attacker = nullptr;
     const Move* move = nullptr;
     Character* target = nullptr;
 
-    int i = getRandomInt(0,team2->getSize()-1);
-    for(Character* character: *team2){
-        if(i==0) attacker=character;
-        i--;
-    }
-
-    i=getRandomInt(0,team1->getSize()-1);
+    int i=getRandomInt(0,team1->getSize()-1);
     for(Character* character: *team1){
         if(i==0) target = character;
         i--;

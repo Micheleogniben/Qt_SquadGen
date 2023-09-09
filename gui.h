@@ -69,7 +69,7 @@ private:
     int attack();
     Character* chooseCharacter(Squad*,QString);
     Move* chooseMove(Character*);
-    int chooseKombatAction();
+    QString chooseKombatAction();
 
 //Flow windows
 
