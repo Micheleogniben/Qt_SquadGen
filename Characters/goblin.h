@@ -13,6 +13,7 @@ public:
     Goblin(const Goblin&);
     bool useAbility(Character*) override;
     void setLifePoints(const unsigned short) override;
+    unsigned short getWeight() const override;
 
     unsigned short getAmount() const;
     void setAmount(unsigned short);

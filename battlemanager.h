@@ -15,6 +15,7 @@ class BattleManager
 private:
     Squad* team1, * team2;
     unsigned int turn;
+    void checkBurning(Squad*) const;
 public:
     BattleManager(Squad*,Squad*);
     bool setTeam(Squad*,int);

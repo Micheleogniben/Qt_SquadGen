@@ -25,6 +25,9 @@ int BattleManager::update() {
     removeDeadCharacters(team1);
     removeDeadCharacters(team2);
 
+    checkBurning(team1);
+    checkBurning(team2);
+
     if (team1->isEmpty()) {
         return 1;
     }
@@ -107,5 +110,15 @@ void BattleManager::opponentKombatLogic() const{
     if(attacker && move && target){
         move->useMove(attacker,target);
         QMessageBox::warning(nullptr, "Attack executed", attacker->getName() + " used " + move->getName() + " targeting " +target->getName());
+    }
+}
+
+void BattleManager::checkBurning(Squad* s) const {
+    // se ci sono personaggi con effetto bruciatura si toglie un lieve danno
+    for (Character* character : *s) {
+        if (character->getBurnign() > 0) {
+            character->setLifePoints(character->getLifePoints() * 0.8);
+            character->setBurning(character->getBurnign() - 1);
+        }
     }
 }

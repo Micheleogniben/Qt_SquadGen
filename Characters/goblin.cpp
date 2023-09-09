@@ -31,6 +31,9 @@ void Goblin::setAmount(unsigned short newValue){
     amount = newValue /*< 0 ? 0 : newValue > 5 ? 5 : newValue*/;
 }
 
+unsigned short Goblin::getWeight() const{
+    return Character::getWeight() * amount;
+}
 
 QJsonObject Goblin::toJsonObj() const{
     QJsonObject characterObj = Character::toJsonObj();
