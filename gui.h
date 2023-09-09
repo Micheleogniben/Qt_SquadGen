@@ -37,6 +37,8 @@
 #include <battlemanager.h>
 #include <type.h>
 #include <statistics.h>
+#include "qfiledialog.h"
+#include "parser.h"
 
 class Gui: public QMainWindow
 {

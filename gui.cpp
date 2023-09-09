@@ -1,7 +1,4 @@
 #include "gui.h"
-#include "qfiledialog.h"
-#include "parser.h"
-
 
 void Gui::createMenus()
 {
