@@ -1,0 +1,30 @@
+{
+    "characters": [
+        {
+            "amount": 7,
+            "characterType": "Goblin",
+            "lifePts": 105,
+            "move1": "Assassinate",
+            "move2": "Sneak Attack",
+            "name": "Goblin Arkeyt"
+        },
+        {
+            "characterType": "Knight",
+            "move1": "Backstab",
+            "move2": "Knight's Charge",
+            "name": "Lucyx"
+        },
+        {
+            "characterType": "Wizard",
+            "move1": "Arcane Missile",
+            "move2": "Lightning Bolt",
+            "name": "Ariote"
+        },
+        {
+            "characterType": "Cleric",
+            "move1": "Holy Smite",
+            "move2": "Life Points & Speed Debuff",
+            "name": "Alessandro II"
+        }
+    ]
+}
