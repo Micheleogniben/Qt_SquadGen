@@ -14,6 +14,7 @@ public:
     Goblin(QString, unsigned short);
     Goblin(const Goblin&);
     bool useAbility(Character*) override;
+    unsigned short getWeight() const override;
     void setLifePoints(const unsigned short) override;
 
     unsigned short getAmount() const;

@@ -39,4 +39,8 @@ QJsonObject Goblin::toJsonObj() const{
     return characterObj;
 }
 
+unsigned short Goblin::getWeight() const {
+    return amount * goblinStats.weight;
+}
+
 

@@ -171,6 +171,7 @@ void Squad::pop() {
     }
 }
 
+
 Character* Squad::findByName(QString name) const {
     Node* current = head;
         while (current != nullptr) {

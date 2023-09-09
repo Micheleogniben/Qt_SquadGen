@@ -897,7 +897,7 @@ void Gui::managementScreen() {
                 throw std::runtime_error("Path not selected");
 
         } catch (const std::exception& e) {
-            QMessageBox::warning(this, "Error", "An error occurred during saving:" + QString(e.what()));
+            QMessageBox::warning(this, "Error", "An error occurred during loading:" + QString(e.what()));
         }
     });
 

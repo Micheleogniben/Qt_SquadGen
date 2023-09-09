@@ -1,5 +1,5 @@
 #include "damagemove.h"
-#include "character.h"
+#include "goblin.h"
 
 DamageMove::DamageMove(QString name, QString description, unsigned short magicDmg, unsigned short physicalDmg, CharType chTp)
     : Move(name, description, Type::Nill, chTp, magicDmg, physicalDmg) { }
@@ -20,6 +20,9 @@ unsigned short DamageMove::useMove(Character* attacker, Character* defender) con
             phyCoeff = phyAtk / phyDef;
 
     unsigned short dmg = static_cast<unsigned short>(this->getMagDmg() * magCoeff + this->getPhyDmg() * phyCoeff);
+
+    if (dynamic_cast<Goblin*>(attacker))
+        dmg *= static_cast<Goblin*>(attacker)->getAmount();
 
     defender->setLifePoints(defender->getLifePoints() - dmg);
     return dmg;
