@@ -77,8 +77,6 @@ private:
 
 public:
     Gui(QWidget* parent = nullptr);
-private slots:
-    void help();
 };
 
 #endif // GUI_H
