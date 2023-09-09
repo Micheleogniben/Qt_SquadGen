@@ -38,19 +38,19 @@ MovesManager::MovesManager(){
     addMove(new DamageMove("Goblin Ambush", "Attacca di sorpresa da goblin.", 25, 15, CharType::Goblin));
     addMove(new DamageMove("Arcane Missile", "Scatena una pioggia di missili magici.", 20, 10, CharType::Wizard));
     addMove(new DamageMove("Lightning Bolt", "Lancia un fulmine devastante.", 30, 15, CharType::Wizard));
-    addMove(new DamageMove("Abyss", "Crea una voragine nel terreno", 50,0,CharType::Boss));
-    addMove(new DamageMove("God's tear", "Scatena una forza arcana", 0,100,CharType::Boss));
+    addMove(new DamageMove("Abyss", "Crea una voragine nel terreno", 50,10,CharType::Boss));
+    addMove(new DamageMove("God's tear", "Scatena una forza arcana", 100,100,CharType::Boss));
 
 
 
     // Mosse StatisticMove
-    addMove(new StatisticMove("Physical Defense Buff", "Aumenta la difesa fisica a discapito dell'attacco magico.", {3, 0, 0, -2, 0}, Type::Earth));
-    addMove(new StatisticMove("Speed Debuff", "Riduce la velocità dell'avversario.", {0, 0, 0, 0, 2}, Type::Neutral));
-    addMove(new StatisticMove("Magic Attack & Defense Buff", "Potenzia le statistiche magiche diminuendo però quelle fisiche.", {-3, 2, -2, 3, 0}, CharType::Cleric));
-    addMove(new StatisticMove("Magic Attack Debuff", "Riduce l'attacco magico dell'avversario.", {4, 0, 0, 0, 0}, Type::Light));
-    addMove(new StatisticMove("Magic Defense Buff", "Aumenta la difesa magica.", {0, 0, -3, 0, 0}, CharType::Cleric));
-    addMove(new StatisticMove("Physical Defense & Speed Buff", "Aumenta la difesa fisica e la velocità dell'utente.", {2, 0, 0, -2, -3}, Type::Neutral));
-    addMove(new StatisticMove("Life Points & Speed Debuff", "Riduce la velocità dell'avversario.", {0, 0, 0, 0, -3}, Type::Neutral));
+    addMove(new StatisticMove("Physical Defense Buff", "Aumenta la difesa fisica a discapito dell'attacco magico.", {3, 0, 0, -2, 0}, Type::Earth, true));
+    addMove(new StatisticMove("Speed Debuff", "Riduce la velocità dell'avversario.", {0, 0, 0, 0, 2}, Type::Neutral ,false));
+    addMove(new StatisticMove("Magic Attack & Defense Buff", "Potenzia le statistiche magiche diminuendo però quelle fisiche.", {-3, 2, -2, 3, 0}, CharType::Cleric , true));
+    addMove(new StatisticMove("Magic Attack Debuff", "Riduce l'attacco magico dell'avversario.", {4, 0, 0, 0, 0}, Type::Light , false));
+    addMove(new StatisticMove("Magic Defense Buff", "Aumenta la difesa magica.", {0, 0, -3, 0, 0}, CharType::Cleric ,true));
+    addMove(new StatisticMove("Physical Defense & Speed Buff", "Aumenta la difesa fisica e la velocità dell'utente.", {2, 0, 0, -2, -3}, Type::Neutral ,true));
+    addMove(new StatisticMove("Life Points & Speed Debuff", "Riduce la velocità dell'avversario.", {0, 0, 0, 0, -3}, Type::Neutral ,false));
 }
 
 
