@@ -277,6 +277,14 @@ void Gui::showCharacterInfoDialog(Character* character){
     QLabel phDefLabel("Difesa fisica:   "+ QString::number(character->getPhyDef()));
     QLabel magDefLabel("Difesa Magica:  "+ QString::number(character->getMagDef()));
     QLabel movesNames("Mosse:  " + character->getMovesNames());
+    QLabel abilityDescription("");
+
+    CharType chartype = character->getCharType();
+    if(chartype==CharType::Goblin) abilityDescription.setText("Descrizione abilitá:  " + Goblin::getAbilityDescription());
+    if(chartype==CharType::Knight) abilityDescription.setText("Descrizione abilitá:  " + Knight::getAbilityDescription());
+    if(chartype==CharType::Cleric) abilityDescription.setText("Descrizione abilitá:  " + Cleric::getAbilityDescription());
+    if(chartype==CharType::Wizard) abilityDescription.setText("Descrizione abilitá:  " + Wizard::getAbilityDescription());
+    if(chartype==CharType::Dragon) abilityDescription.setText("Descrizione abilitá:  " + Dragon::getAbilityDescription());
 
     characterInfoLayout.addWidget(&nameLabel);
     characterInfoLayout.addWidget(&characterLabel);
@@ -285,6 +293,7 @@ void Gui::showCharacterInfoDialog(Character* character){
     characterInfoLayout.addWidget(&phDefLabel);
     characterInfoLayout.addWidget(&magDefLabel);
     characterInfoLayout.addWidget(&movesNames);
+    characterInfoLayout.addWidget(&abilityDescription);
 
     Goblin* goblin = dynamic_cast<Goblin*>(character);
     QLabel amountLabel;

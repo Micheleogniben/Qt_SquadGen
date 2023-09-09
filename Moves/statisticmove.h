@@ -19,9 +19,11 @@ public:
     StatisticMove(QString, QString, StatisticChanges, Type);
     StatisticMove(QString, QString, StatisticChanges, CharType);
     unsigned short useMove(Character*, Character*) const override;
+    bool isFriendly();
 
 private:
     StatisticChanges changes;
+    bool friendly;
 };
 
 #endif // STATISTICMOVE_H

@@ -13,7 +13,7 @@ bool Dragon::useAbility(Character* target){
     std::srand(static_cast<unsigned int>(std::time(0)));
     target->setLifePoints(target->getLifePoints() * 0.7);
 
-    target->setBurning((std::rand() % 4) + 3);
+    target->setBurning((arc4random() % 4) + 3);
 
     setAbilityUsed(true);
     return true;
