@@ -234,7 +234,6 @@ int Gui::attack(){
         if(target){
             QMessageBox::warning(nullptr,"Mossa eseguita","Danni inflitti: "+ QString::number(move->useMove(attacker,target)));
             qDebug() << attacker->getName() << " ha usato " << move->getName() << " colpendo " << target->getName()  ;
-            qDebug() << target->getLifePoints() << "    "<< move->getPhyDmg();
         }
     }
 
