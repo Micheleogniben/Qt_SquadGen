@@ -9,15 +9,13 @@ void Gui::createMenus()
     QMenu* helpMenu = new QMenu("Help", this);
     QAction *helpAction = new QAction("Help", this);
 
-    // Connect the actions to their respective slots
-
     connect(helpAction, &QAction::triggered, this, &Gui::help);
 
     helpMenu->addAction(helpAction);
 
     menuBar->addMenu(helpMenu);
 
-    layout()->setMenuBar(menuBar); // Add the menu bar to the layout
+    layout()->setMenuBar(menuBar);
 }
 
 void Gui::help()
@@ -46,7 +44,7 @@ bool Gui::enoughCapacity(const QString &characterName, const int unitCount,  con
         if(key!=characterName)
             totalSelectedWeight += value.first * value.second;
     }
-    int remainingWeight = Squad::capacity - (totalSelectedWeight + characterMap[characterName].first *unitCount) ;
+    int remainingWeight = squad->getCurrentCapacity() - (totalSelectedWeight + characterMap[characterName].first *unitCount) ;
     if(remainingWeight  >= 0 ) return true;
     else return false;
 }
@@ -234,13 +232,15 @@ int Gui::attack(){
         if(action==1){
             move = chooseMove(attacker);
         }
-        if(action==0){
+        else if(action==0){
             bool abilityUsable = attacker->useAbility(0);
             if(!abilityUsable) QMessageBox::critical(nullptr, "Error", "Ability yet Used");
             else QMessageBox::warning(nullptr, "Ability used" , attacker->getName() + " used his ability");
         }
         else return 0;
     }
+    else return 0;
+    qDebug() << move;
     if(move){
         if(dynamic_cast<DamageMove*>(move)) target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
         else target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target"));
@@ -250,6 +250,7 @@ int Gui::attack(){
             qDebug() << target->getLifePoints() << "    "<< move->getPhyDmg();
 
             int i=battleManager->update();
+            qDebug()<<i;
             if(i!=0) return i;
         }
     }
@@ -944,12 +945,14 @@ void Gui::kombatScreen() {
         }
         if(i==2){
             QMessageBox::warning(nullptr, "Victory", "You smashed your enemy");
+
             delete battleManager;
             managementScreen();
         }
     });
 
     connect(exitButton, &QPushButton::clicked, [=]() {
+        delete battleManager;
         managementScreen();
     });
 
