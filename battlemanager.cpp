@@ -98,18 +98,30 @@ void BattleManager::opponentKombatLogic() const{
         if(i==0) attacker=character;
         i--;
     }
-    i=getRandomInt(0,1);
-    if(i==1) move = std::get<0>(attacker->getMoves());
-    else move = std::get<1>(attacker->getMoves());
 
     i=getRandomInt(0,team1->getSize()-1);
     for(Character* character: *team1){
         if(i==0) target = character;
         i--;
     }
-    if(attacker && move && target){
-        move->useMove(attacker,target);
-        QMessageBox::warning(nullptr, "Attack executed", attacker->getName() + " used " + move->getName() + " targeting " +target->getName());
+
+    bool abilityYetUse=attacker->getAbilityUsed();
+    i=getRandomInt(0,1);
+
+    if(!abilityYetUse && i==0){
+        attacker->useAbility(target);
+        QMessageBox::warning(nullptr, "Ability used", attacker->getName() + " used his ability targeting " +target->getName() + "\n Descrizione: " + Boss::getAbilityDescription());
+    }
+
+    else{
+        i=getRandomInt(0,1);
+        if(i==1) move = std::get<0>(attacker->getMoves());
+        else move = std::get<1>(attacker->getMoves());
+
+        if(attacker && move && target){
+            move->useMove(attacker,target);
+            QMessageBox::warning(nullptr, "Attack executed", attacker->getName() + " used " + move->getName() + " targeting " +target->getName());
+        }
     }
 }
 
