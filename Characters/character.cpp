@@ -141,8 +141,8 @@ void Character::fromJsonObj(QJsonObject characterObj){
 
     // Crea istanze delle mosse dai loro oggetti JSON
 
-    Move* move1 = Parser::loadMove(move1Obj, this);
-    Move* move2 = Parser::loadMove(move2Obj, this);
+    Move* move1 = Parser::loadMove(move1Obj);
+    Move* move2 = Parser::loadMove(move2Obj);
 
     name = loadedName;
     moves = {move1, move2};

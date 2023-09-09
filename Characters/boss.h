@@ -6,8 +6,7 @@
 class Boss: public Character
 {
 private:
-    static const bool abilityFriendly=false;
-    static const bool abilityHasTarget=true;
+
 public:
     Boss(QString);
     bool useAbility(Character*);
@@ -15,6 +14,9 @@ public:
     static QString getAbilityDescription(){
         return QString("Minimizza l'attacco fisico di un avversario a scelta");
     }
+
+    static const bool abilityFriendly=false;
+    static const bool abilityHasTarget=true;
 
 };
 
