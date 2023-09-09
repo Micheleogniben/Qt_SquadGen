@@ -8,8 +8,6 @@ class Goblin : public Character
 {
 private:
     unsigned short amount;
-    static const bool abilityFriendly=true;
-    static const bool abilityHasTarget=false;
 public:
     Goblin(QString, unsigned short);
     Goblin(const Goblin&);
@@ -22,10 +20,12 @@ public:
 
     QJsonObject toJsonObj() const override;
 
-
     static QString getAbilityDescription(){
         return QString("Potenziamento attacco fisico e magico");
     }
+
+    static const bool abilityFriendly=true;
+    static const bool abilityHasTarget=false;
 };
 
 #endif // GOBLIN_H

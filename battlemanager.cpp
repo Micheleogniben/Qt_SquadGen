@@ -68,17 +68,17 @@ bool BattleManager::setTeam(Squad* team, int i){
 }
 
 int getRandomInt(int min, int max) {
-    std::random_device rd; // Obtain a random seed from the operating system
-    std::mt19937 engine(rd()); // Mersenne Twister pseudo-random number generator
-    std::uniform_int_distribution<int> distribution(min, max); // Define the distribution
+    std::random_device rd;
+    std::mt19937 engine(rd());
+    std::uniform_int_distribution<int> distribution(min, max);
 
-    return distribution(engine); // Generate and return a random integer
+    return distribution(engine);
 }
 
 void BattleManager::setBossBattle(MovesManager* m){
     if(team2) delete team2;
     team2 = new Squad();
-    Character* boss=new Boss("Gorlock The Destroyer");
+    Character* boss=new Boss("Vordt della Valle Boreale");
     boss->addMove(m->moveByName(QString("Abyss")),m->moveByName(QString("God's tear")));
     team2->addCharacter(boss);
 }
@@ -110,7 +110,7 @@ void BattleManager::opponentKombatLogic() const{
 
     if(!abilityYetUse && i==0){
         attacker->useAbility(target);
-        QMessageBox::warning(nullptr, "Ability used", attacker->getName() + " used his ability targeting " +target->getName() + "\n Descrizione: " + Boss::getAbilityDescription());
+        QMessageBox::warning(nullptr, "Abilitá usata correttamente", attacker->getName() + " ha usato la sua abilitá colpendo " +target->getName() + "\n Descrizione: " + Boss::getAbilityDescription());
     }
 
     else{
@@ -119,8 +119,8 @@ void BattleManager::opponentKombatLogic() const{
         else move = std::get<1>(attacker->getMoves());
 
         if(attacker && move && target){
-            move->useMove(attacker,target);
-            QMessageBox::warning(nullptr, "Attack executed", attacker->getName() + " used " + move->getName() + " targeting " +target->getName());
+            QMessageBox::warning(nullptr, "Attacco eseguito", attacker->getName() + " ha usato " + move->getName() + " colpendo " +target->getName());
+            QMessageBox::warning(nullptr,"Mossa eseguita","Danni inflitti: "+ QString::number(move->useMove(attacker,target)));
         }
     }
 }

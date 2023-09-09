@@ -37,6 +37,8 @@
 #include <battlemanager.h>
 #include <type.h>
 #include <statistics.h>
+#include "qfiledialog.h"
+#include "parser.h"
 
 class Gui: public QMainWindow
 {
@@ -77,8 +79,6 @@ private:
 
 public:
     Gui(QWidget* parent = nullptr);
-private slots:
-    void help();
 };
 
 #endif // GUI_H

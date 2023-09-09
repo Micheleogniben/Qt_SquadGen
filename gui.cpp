@@ -1,39 +1,10 @@
 #include "gui.h"
-#include "qfiledialog.h"
-#include "parser.h"
-
 
 void Gui::createMenus()
 {
     QMenuBar *menuBar = new QMenuBar(this);
-    QMenu* helpMenu = new QMenu("Help", this);
-    QAction *helpAction = new QAction("Help", this);
-
-    connect(helpAction, &QAction::triggered, this, &Gui::help);
-
-    helpMenu->addAction(helpAction);
-
-    menuBar->addMenu(helpMenu);
 
     layout()->setMenuBar(menuBar);
-}
-
-void Gui::help()
-{
-    QFile file(":/Resources/documentation.txt");
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&file);
-        QString documentation = in.readAll();
-
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Documentation");
-        msgBox.setText(documentation);
-        msgBox.exec();
-
-        file.close();
-    } else {
-        QMessageBox::warning(nullptr, "Error", "Documentation file not found!");
-    }
 }
 
 bool Gui::enoughCapacity(const QString &characterName, const int unitCount,  const QHash<QString,QPair<int,int>>& characterMap) const{
@@ -58,7 +29,7 @@ void Gui::updateRemainingCapacityLabel(const QString & characterName, int unitCo
     }
 
     int remainingCapacity = squad->getCurrentCapacity() - totalSelectedWeight;
-    remainingCapacityLabel->setText("Remaining Capacity: " + QString::number(remainingCapacity));
+    remainingCapacityLabel->setText("Spazio rimanente per la tua squadra: " + QString::number(remainingCapacity));
 }
 
 //=========================
@@ -84,21 +55,21 @@ void Gui::updateKombatScreen(QVBoxLayout* yourTeamLayout, QVBoxLayout* opponentL
         delete item;
     }
 
-    QLabel *yourTeamLabel = new QLabel("Your Squad:");
+    QLabel *yourTeamLabel = new QLabel("La tua squadra:");
     yourTeamLabel->setStyleSheet("font-size: 20px;color:red");
     yourTeamLayout->addWidget(yourTeamLabel);
 
-    QLabel *opponentLabel = new QLabel("YourVictim:");
+    QLabel *opponentLabel = new QLabel("Il tuo avversario:");
     opponentLabel->setStyleSheet("font-size: 20px;color:red");
     opponentLayout->addWidget(opponentLabel);
 
     for (Character* character : *battleManager->getTeam(1)) {
-        QLabel* label = new QLabel(character->getName() + "   " + QString::number(character->getLifePoints()) + " LifeP");
+        QLabel* label = new QLabel(character->getName() + "   " + QString::number(character->getLifePoints()) + " Life Points");
         yourTeamLayout->addWidget(label);
     }
 
     for (Character* character : *battleManager->getTeam(2)) {
-        QLabel* label = new QLabel(character->getName() + "   " + QString::number(character->getLifePoints()) + " LifeP");
+        QLabel* label = new QLabel(character->getName() + "   " + QString::number(character->getLifePoints()) + " Life Points");
         opponentLayout->addWidget(label);
     }
 }
@@ -137,7 +108,7 @@ Character* Gui::chooseCharacter(Squad* squadSelected, QString title){
         }
     }
 
-    return nullptr; // Nessun personaggio selezionato o dialogo annullato
+    return nullptr;
 }
 
 Move* Gui::chooseMove(Character* character) {
@@ -175,14 +146,14 @@ Move* Gui::chooseMove(Character* character) {
         if (selectedItem) {
             QString selectedMoveName = selectedItem->text();
             if (selectedMoveName == firstMove->getName()) {
-                return const_cast<Move*>(firstMove); // Rimuovi const e restituisci la mossa
+                return const_cast<Move*>(firstMove);
             } else if (selectedMoveName == secondMove->getName()) {
-                return const_cast<Move*>(secondMove); // Rimuovi const e restituisci la mossa
+                return const_cast<Move*>(secondMove);
             }
         }
     }
 
-    return nullptr; // Nessuna mossa selezionata o dialogo annullato
+    return nullptr;
 }
 
 
@@ -213,13 +184,13 @@ int Gui::chooseKombatAction() {
 
     if (actionSelectDialog.exec() == QDialog::Accepted) {
         if (abilityRadio->isChecked()) {
-            return 0; // L'utente ha scelto di usare l'abilità
+            return 0;
         } else if (moveRadio->isChecked()) {
-            return 1; // L'utente ha scelto di selezionare una mossa
+            return 1;
         }
     }
 
-    return -1; // Nessuna scelta o dialogo annullato
+    return -1;
 }
 
 
@@ -233,33 +204,48 @@ int Gui::attack(){
             move = chooseMove(attacker);
         }
         else if(action==0){
-            bool abilityUsable = attacker->useAbility(0);
-            if(!abilityUsable) QMessageBox::critical(nullptr, "Error", "Ability yet Used");
-            else QMessageBox::warning(nullptr, "Ability used" , attacker->getName() + " used his ability");
+            bool abilityUsed = attacker->getAbilityUsed();
+            if(abilityUsed){ QMessageBox::critical(nullptr, "Errore", "Abilitá giá usata"); return 0;}
+            else{
+                CharType chty = attacker->getCharType();
+                bool abFr, abTar;
+
+                if(chty==CharType::Goblin){ abFr = Goblin::abilityFriendly;  abTar = Goblin::abilityHasTarget;}
+                if(chty==CharType::Knight){ abFr = Knight::abilityFriendly;  abTar = Knight::abilityHasTarget;}
+                if(chty==CharType::Wizard){ abFr = Wizard::abilityFriendly;  abTar = Wizard::abilityHasTarget;}
+                if(chty==CharType::Cleric){ abFr = Cleric::abilityFriendly;  abTar = Cleric::abilityHasTarget;}
+                if(chty==CharType::Dragon){ abFr = Dragon::abilityFriendly;  abTar = Dragon::abilityHasTarget;}
+
+                if(!abTar) { attacker->useAbility(nullptr); QMessageBox::warning(nullptr, "Abilitá usata correttamente" , attacker->getName() + " ha usato la sua abilitá"); }
+
+                else if(abTar && abFr){ target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target")); if(target==0) return 0; }
+                else if(abTar && !abFr){ target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target")); if(target==0) return 0; }
+
+                if(target) { attacker->useAbility(target); QMessageBox::warning(nullptr, "Abilitá usata correttamente" , attacker->getName() + " ha usato la sua abilitá su " + target->getName() );}
+            }
         }
         else return 0;
     }
-    else return 0;
     if(move){
-
         if(dynamic_cast<StatisticMove*>(move) && static_cast<StatisticMove*>(move)->isFriendly()){
             target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target"));
         }
         else target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
         if(target){
-            //QMessageBox::warning(nullptr,"Mossa eseguita","Danni inflitti: "+ move->useMove(attacker,target));
-            qDebug() << attacker->getName() << " used " << move->getName() << " targeting " << target->getName()  ;
+            QMessageBox::warning(nullptr,"Mossa eseguita","Danni inflitti: "+ QString::number(move->useMove(attacker,target)));
+            qDebug() << attacker->getName() << " ha usato " << move->getName() << " colpendo " << target->getName()  ;
             qDebug() << target->getLifePoints() << "    "<< move->getPhyDmg();
-
-            int i=battleManager->update();
-            if(i!=0) return i;
         }
     }
-    QMessageBox::warning(nullptr, "Bad News", "Now it's your opponent's turn");
-    battleManager->opponentKombatLogic();
+
     int i=battleManager->update();
     if(i!=0) return i;
+    QMessageBox::warning(nullptr, "Brutte Notizie", "Ora é il turno del tuo avversario");
+    battleManager->opponentKombatLogic();
+    i=battleManager->update();
+    if(i!=0) return i;
     battleManager->updateTurn();
+    return 0;
 }
 
 
@@ -299,7 +285,7 @@ void Gui::showCharacterInfoDialog(Character* character){
     Goblin* goblin = dynamic_cast<Goblin*>(character);
     QLabel amountLabel;
     if(goblin){
-        amountLabel.setText("Amount of Goblins:   " + QString::number(goblin->getAmount()));
+        amountLabel.setText("Numero di Goblins:   " + QString::number(goblin->getAmount()));
         characterInfoLayout.addWidget(&amountLabel);
     }
 
@@ -351,7 +337,7 @@ void Gui::squadManagement() {
 
     QVBoxLayout characterSelectLayout(characterSelectDialog);
 
-    QButtonGroup characterGroup;  // Gruppo per gestire i bottoni radio
+    QButtonGroup characterGroup;
 
     Character* selectedCharacter=nullptr;
 
@@ -373,14 +359,10 @@ void Gui::squadManagement() {
         });
         characterSelectLayout.addWidget(infoButton);
 
-        // Aggiungi il pulsante radio al gruppo
         characterGroup.addButton(selectRadio);
 
-        // Connetti il segnale del pulsante radio per gestire la selezione del personaggio
         connect(selectRadio, &QRadioButton::clicked, [&selectedCharacter,&selectRadio,&character,this]() {
             if (selectRadio->isChecked()) {
-                // Il personaggio è selezionato, puoi fare qualcosa con esso
-                //QMessageBox::critical(this, "Errore", character->getName());
                 selectedCharacter=character;
             }
         });
@@ -416,21 +398,19 @@ void Gui::squadManagement() {
 
 
 
-// Funzione per la selezione delle mosse
 int Gui::updateMoves(Character* character) {
     QDialog moveDialog(this);
     moveDialog.setWindowTitle("Selezione Mosse per " + character->getName());
 
     QVBoxLayout mainLayout(&moveDialog);
 
-    std::set<QString> movesToAdd;  // Utilizza un set invece di un vettore
+    std::set<QString> movesToAdd;
 
-    // Crea una QScrollArea per la lista delle mosse
     QScrollArea scrollArea;
     QWidget* scrollContent = new QWidget(&scrollArea);
     QVBoxLayout moveLayout(scrollContent);
 
-    for (Move* move : MovesManager::getCompatibleMoves(character)) {
+    for (Move* move : movesManager->getCompatibleMoves(character)) {
         QVBoxLayout *itemLayout = new QVBoxLayout();
 
         QLabel* moveLabel = new QLabel(move->getName());
@@ -452,11 +432,9 @@ int Gui::updateMoves(Character* character) {
             if (state == Qt::Checked) {
                 if (selectCheckBox->isChecked()) {
                     movesToAdd.insert(move->getName());
-                    //qDebug() << "Selected Move Name: " << move->getName();
                 }
             } else if (state == Qt::Unchecked) {
                 movesToAdd.erase(move->getName());
-                //qDebug() << "Unselected Move Name: " << move->getName();
             }
         });
     }
@@ -530,14 +508,14 @@ void Gui::moveSelection() {
 void Gui::characterSelection(){
 
     QDialog *characterSelectionDialog = new QDialog(this);
-    characterSelectionDialog->setWindowTitle("Select Characters");
+    characterSelectionDialog->setWindowTitle("Seleziona i personaggi da aggiungere alla tua squadra: ");
 
     QVBoxLayout *mainLayout = new QVBoxLayout(characterSelectionDialog);
 
-    QLabel *remainingCapacityLabel = new QLabel("Remaining Capacity: " + QString::number(squad->getCurrentCapacity()));
+    QLabel *remainingCapacityLabel = new QLabel("Spazio rimanente per la tua squadra: " + QString::number(squad->getCurrentCapacity()));
     mainLayout->addWidget(remainingCapacityLabel);
 
-    QHash<QString,QPair<int,int>> characterMap; // Map to store character weights per unit and number of occurencies DA MODIFICARE
+    QHash<QString,QPair<int,int>> characterMap; // Map to store character weights per unit and number of occurencies
     characterMap.insert("Goblin", QPair<int,int>(goblinStats.weight,0));
     characterMap.insert("Knight", QPair<int,int>(knightStats.weight,0));
     characterMap.insert("Wizard", QPair<int,int>(wizardStats.weight,0));
@@ -548,35 +526,35 @@ void Gui::characterSelection(){
 
         //GoblinBox
         QSpinBox *goblinSpinBox = new QSpinBox;
-        goblinSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
+        goblinSpinBox->setRange(0, Squad::capacity);
         QLabel *goblinLabel = new QLabel("Goblin: ");
         mainLayout->addWidget(goblinLabel);
         mainLayout->addWidget(goblinSpinBox);
 
         // KnightBox
         QSpinBox *knightSpinBox = new QSpinBox;
-        knightSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
+        knightSpinBox->setRange(0, Squad::capacity);
         QLabel *knightLabel = new QLabel("Knight: " );
         mainLayout->addWidget(knightLabel);
         mainLayout->addWidget(knightSpinBox);
 
         //WizardBox
         QSpinBox *wizardSpinBox = new QSpinBox;
-        wizardSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
+        wizardSpinBox->setRange(0, Squad::capacity);
         QLabel *wizardLabel = new QLabel("Wizard: ");
         mainLayout->addWidget(wizardLabel);
         mainLayout->addWidget(wizardSpinBox);
 
         //ClericBox
         QSpinBox *clericSpinBox = new QSpinBox;
-        clericSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
+        clericSpinBox->setRange(0, Squad::capacity);
         QLabel *clericLabel = new QLabel("Cleric: ");
         mainLayout->addWidget(clericLabel);
         mainLayout->addWidget(clericSpinBox);
 
         //DragonBox
         QSpinBox *dragonSpinBox = new QSpinBox;
-        dragonSpinBox->setRange(0, Squad::capacity); // Set the maximum number of units
+        dragonSpinBox->setRange(0, Squad::capacity);
         QLabel *dragonLabel = new QLabel("Dragon ");
         mainLayout->addWidget(dragonLabel);
         mainLayout->addWidget(dragonSpinBox);
@@ -589,7 +567,7 @@ void Gui::characterSelection(){
             if(eC)
                 updateRemainingCapacityLabel(character, knightSpinBox->value(), remainingCapacityLabel, characterMap);
             else{
-                QMessageBox::warning(this, "Exceeded Capacity", "Your input has exceeded the remaining capacity.");
+                QMessageBox::warning(this, "Capacitá superata", "Non c'é piú spazio nella squadra");
                 knightSpinBox->setValue(characterMap[character].second);
             }
         });
@@ -601,7 +579,7 @@ void Gui::characterSelection(){
             if(eC)
                 updateRemainingCapacityLabel(character, wizardSpinBox->value(), remainingCapacityLabel, characterMap);
             else{
-                QMessageBox::warning(this, "Exceeded Capacity", "Your input has exceeded the remaining capacity.");
+                QMessageBox::warning(this, "Capacitá superata", "Non c'é piú spazio nella squadra");
                 wizardSpinBox->setValue(characterMap[character].second);
             }
         });
@@ -613,7 +591,7 @@ void Gui::characterSelection(){
             if(eC)
                 updateRemainingCapacityLabel(character, clericSpinBox->value(), remainingCapacityLabel, characterMap);
             else{
-                QMessageBox::warning(this, "Exceeded Capacity", "Your input has exceeded the remaining capacity.");
+                QMessageBox::warning(this, "Capacitá superata", "Non c'é piú spazio nella squadra");
                 clericSpinBox->setValue(characterMap[character].second);
             }
         });
@@ -625,7 +603,7 @@ void Gui::characterSelection(){
             if(eC)
                 updateRemainingCapacityLabel(character, goblinSpinBox->value(), remainingCapacityLabel, characterMap);
             else{
-                QMessageBox::warning(this, "Exceeded Capacity", "Your input has exceeded the remaining capacity.");
+                QMessageBox::warning(this, "Capacitá superata", "Non c'é piú spazio nella squadra");
                 goblinSpinBox->setValue(characterMap[character].second);
             }
         });
@@ -637,26 +615,20 @@ void Gui::characterSelection(){
             if(eC)
                 updateRemainingCapacityLabel(character, dragonSpinBox->value(), remainingCapacityLabel, characterMap);
             else{
-                QMessageBox::warning(this, "Exceeded Capacity", "Your input has exceeded the remaining capacity.");
+                QMessageBox::warning(this, "Capacitá superata", "Non c'é piú spazio nella squadra");
                 dragonSpinBox->setValue(characterMap[character].second);
             }
         });
 
-        // more to come...
 
-    // Create a button box for OK and Cancel buttons
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     mainLayout->addWidget(buttonBox);
 
-    // Connect the OK button
     QObject::connect(buttonBox, &QDialogButtonBox::accepted, characterSelectionDialog, &QDialog::accept);
 
-    // Connect the Cancel button
     QObject::connect(buttonBox, &QDialogButtonBox::rejected, characterSelectionDialog, &QDialog::reject);
 
-    // Show the character selection dialog
     if (characterSelectionDialog->exec() == QDialog::Accepted) {
-        // Handle the selected characters and proceed with the game
 
         for (auto it = characterMap.cbegin(); it != characterMap.cend(); ++it) {
             QString key = it.key();
@@ -669,20 +641,20 @@ void Gui::characterSelection(){
                     goblin = dynamic_cast<Goblin*>(character);
                 }
                 if(goblin){
-                    QMessageBox::warning(this, "Ord of Goblins yet created", "A ord of goblins was yet created so the goblins you added will be added to it.");
+                    QMessageBox::warning(this, "Orda di goblin giá creata", "I tuoi goblin verranno aggiunti all'orda preesistente");
                     int amount = goblin->getAmount()+value.second;
                     goblin->setAmount(amount);
                 }
                 else{
-                    QString name=QInputDialog::getText(this, "Enter Name", "Enter a name for the Ord of Goblins:");
+                    QString name=QInputDialog::getText(this, "Inserisci un nome", "Inserisci un nome per la tua orda di goblin");
                     while(name.isEmpty()){
-                        QMessageBox::warning(this, "Missing Name", "You must enter a name for the Ord of Goblins.");
-                        name= QInputDialog::getText(this, "Enter Name", "Enter a name for the Ord of Goblins:");
+                        QMessageBox::warning(this, "Nome mancante", "Devi inserire un nome");
+                        name= QInputDialog::getText(this, "Inserisci un nome", "Inserisci un nome per la tua orda di goblin");
                     }
 
                     while(squad->isNameTaken(name)){
-                        QMessageBox::warning(this, "Duplicate Name", "This name is already used. Please choose a different name.");
-                        name = QInputDialog::getText(this, "Enter Name", "Enter a name for the " + key + ":");
+                        QMessageBox::warning(this, "Nome giá inserito", "Questo nome é giá stato inserito, inseriscine un altro");
+                        name= QInputDialog::getText(this, "Inserisci un nome", "Inserisci un nome per la tua orda di goblin");
                     }
 
                     squad->addCharacter(new Goblin(name,value.second));
@@ -691,15 +663,15 @@ void Gui::characterSelection(){
 
             else{
                 for (int i = value.second; i != 0; i--) {
-                    QString name = QInputDialog::getText(this, "Enter Name", "Enter a name for the " + key + ":");
+                    QString name = QInputDialog::getText(this, "Inserisci un nome", "Inserisci un nome per " + key + ":");
                     while(name.isEmpty()) {
-                        QMessageBox::warning(this, "Missing Name", "You must enter a name for the " + key + ".");
-                        name = QInputDialog::getText(this, "Enter Name", "Enter a name for the " + key + ":");
+                        QMessageBox::warning(this, "Nome mancante", "Devi inserire un nome per " + key + ".");
+                        name = QInputDialog::getText(this, "Inserisci un nome", "Inserisci un nome per " + key + ":");
                     }
 
                     while(squad->isNameTaken(name)){
-                        QMessageBox::warning(this, "Duplicate Name", "This name is already used. Please choose a different name.");
-                        name = QInputDialog::getText(this, "Enter Name", "Enter a name for the " + key + ":");
+                        QMessageBox::warning(this, "Nome giá inserito", "Questo nome é giá stato inserito, inseriscine un altro");
+                        name = QInputDialog::getText(this, "Inserisci un nome", "Inserisci un nome per " + key + ":");
                     }
 
                     if (key == "Knight") squad->addCharacter(new Knight(name));
@@ -724,30 +696,24 @@ void Gui::characterSelection(){
 void Gui::startScreen()
 {
     setWindowTitle("QtKombat");
-    setFixedSize(750, 400); // Set initial window size
+    setFixedSize(750, 400);
 
-    // Create a vertical layout for the window
-    QVBoxLayout *mainLayout = new QVBoxLayout(this); // Usa direttamente "this" come genitore
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
-    // Add a label with the game name as the title
-    QLabel *titleLabel = new QLabel("WELCOME TO QTKombat");
+    QLabel *titleLabel = new QLabel("BENVENUTO IN QTKombat");
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("font-size: 24px; font-weight: bold;");
 
-    // Create a horizontal layout for the buttons
     QHBoxLayout *buttonLayout = new QHBoxLayout();
 
-    // Create and configure the "Create your Squad" button
-    QPushButton *createButton = new QPushButton("Create your Squad");
+    QPushButton *createButton = new QPushButton("Crea una squadra");
     createButton->setFixedSize(200, 50);
     createButton->setStyleSheet("font-size: 18px;");
 
-    // Create and configure the "Load Squad" button
-    QPushButton *loadButton = new QPushButton("Load a Squad");
+    QPushButton *loadButton = new QPushButton("Carica una squadra");
     loadButton->setFixedSize(200, 50);
     loadButton->setStyleSheet("font-size: 18px;");
 
-    // Connect the "Create your Squad" button to the character selection action
     connect(createButton, &QPushButton::clicked, [&]() {
         characterSelection();
         if (!squad->isEmpty()) {
@@ -766,30 +732,23 @@ void Gui::startScreen()
             );
 
             if (filePath.isEmpty())
-                throw std::runtime_error("Path not selected");
+                throw std::runtime_error("Percorso non selezionato!");
 
             squad = Parser::loadSquad(filePath);
-            QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
+            QMessageBox::information(this, "Squadra caricata", "La tua squadra è stata caricata con successo!");
             managementScreen();
 
         } catch (const std::exception& e) {
-            QMessageBox::warning(this, "Error", "An error occurred during saving:" + QString(e.what()));
+            QMessageBox::warning(this, "Errore", "C'è stato un errore nel caricamento della squadra: " + QString(e.what()));
         }
     });
 
-    // Add the buttons to the horizontal button layout
     buttonLayout->addWidget(createButton);
     buttonLayout->addWidget(loadButton);
 
-    // Add the title label to the vertical main layout
     mainLayout->addWidget(titleLabel);
-
-    // Add spacing or other widgets if needed between title and buttons
-
-    // Add the horizontal button layout to the vertical main layout
     mainLayout->addLayout(buttonLayout);
 
-    // Remove the existing layout (if any)
     QWidget* central = centralWidget();
     if (central->layout()) {
         QLayout* existingLayout = central->layout();
@@ -797,11 +756,8 @@ void Gui::startScreen()
         delete existingLayout;
     }
 
-    // Set the new layout
     central->setLayout(mainLayout);
 
-
-    // Show the window
     show();
 }
 
@@ -810,69 +766,59 @@ void Gui::managementScreen() {
 
     QWidget *buttonWidget = new QWidget(this);
 
-    // Create a vertical layout for the buttons
     QVBoxLayout *mainLayout = new QVBoxLayout(buttonWidget);
 
-    // Create a horizontal layout for the top row buttons
     QHBoxLayout *topButtonLayout = new QHBoxLayout();
 
-    // Create the Save Squad button and set its size and style
-    QPushButton *saveSquadButton = new QPushButton("Save Squad");
+    QPushButton *saveSquadButton = new QPushButton("Salva la squadra");
     saveSquadButton->setFixedSize(200, 70);
     saveSquadButton->setStyleSheet("font-size: 12px;");
 
-    // Create the Edit Squad button and set its size and style
-    QPushButton *editSquadButton = new QPushButton("Edit Squad");
+    QPushButton *editSquadButton = new QPushButton("Modifica la squadra");
     editSquadButton->setFixedSize(200, 70);
     editSquadButton->setStyleSheet("font-size: 12px;");
 
-    // Create the Load Squad button and set its size and style
-    QPushButton *loadSquadButton = new QPushButton("Load Squad");
+    QPushButton *loadSquadButton = new QPushButton("Carica una squadra");
     loadSquadButton->setFixedSize(200, 70);
     loadSquadButton->setStyleSheet("font-size: 12px;");
 
-    // Add the top row buttons to the horizontal layout
     topButtonLayout->addWidget(saveSquadButton);
     topButtonLayout->addWidget(editSquadButton);
     topButtonLayout->addWidget(loadSquadButton);
 
-    // Create the Start Kombat button and set its size and style
-    QPushButton *startKombatButton = new QPushButton("Start Kombat");
+    QPushButton *startKombatButton = new QPushButton("Inizia il Kombattimento");
     startKombatButton->setFixedSize(200, 70);
     startKombatButton->setStyleSheet("font-size: 12px;background-color: red; color: black;");
 
-    // Create a horizontal layout for the center alignment of the Start Kombat button
     QHBoxLayout *centerButtonLayout = new QHBoxLayout();
-    centerButtonLayout->addStretch(); // Add stretch to center-align the button
+    centerButtonLayout->addStretch();
     centerButtonLayout->addWidget(startKombatButton);
-    centerButtonLayout->addStretch(); // Add stretch to center-align the button
+    centerButtonLayout->addStretch();
 
-    // Add the top row layout and the center-aligned Start Kombat button layout to the main layout
     mainLayout->addLayout(topButtonLayout);
     mainLayout->addLayout(centerButtonLayout);
 
-    // Set the new widget as the central widget
     QWidget *previousWidget = centralWidget();
     setCentralWidget(buttonWidget);
     delete previousWidget;
 
-    // Connect button clicks to lambda functions for handling
     connect(saveSquadButton, &QPushButton::clicked, [this]() {
         try {
             QString filePath = QFileDialog::getSaveFileName(
                 this,
-                "Seleziona il percorso di salvataggio",
-                QDir::homePath(),  // Directory predefinita iniziale
-                "File JSON (*.json);;Tutti i file (*)"
+                "Seleziona un file",
+                QDir::homePath(),
+                "File JSON (*.json)"
             );
-            if (!filePath.isEmpty()){
-                Parser::saveSquad(filePath, *squad);
-                QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
-            } else
-                throw std::runtime_error("Path not selected");
+
+            if (filePath.isEmpty())
+                throw std::runtime_error("Percorso non selezionato!");
+
+            Parser::saveSquad(filePath, *squad);
+            QMessageBox::information(this, "Squadra salvata", "La tua squadra è stata salvata con successo!");
 
         } catch (const std::exception& e) {
-            QMessageBox::warning(this, "Error", "An error occurred during saving:" + QString(e.what()));
+            QMessageBox::warning(this, "Errore", "C'è stato un errore nel caricamento della squadra: " + QString(e.what()));
         }
     });
 
@@ -890,27 +836,27 @@ void Gui::managementScreen() {
                 "File JSON (*.json)"
             );
 
-            if (!filePath.isEmpty()){
-                squad = Parser::loadSquad(filePath);
-                QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
-            } else
-                throw std::runtime_error("Path not selected");
+            if (filePath.isEmpty())
+                throw std::runtime_error("Percorso non selezionato!");
+
+            squad = Parser::loadSquad(filePath);
+            QMessageBox::information(this, "Squadra caricata", "La tua squadra è stata caricata con successo!");
 
         } catch (const std::exception& e) {
-            QMessageBox::warning(this, "Error", "An error occurred during loading:" + QString(e.what()));
+            QMessageBox::warning(this, "Errore", "C'è stato un errore nel caricamento della squadra: " + QString(e.what()));
         }
     });
 
     connect(startKombatButton, &QPushButton::clicked, [this]() {
         if(squad){
-            if(squad->getSize()==0) QMessageBox::critical(nullptr, "Error", "You must have at least one member in your squad");
+            if(squad->getSize()==0) QMessageBox::critical(nullptr, "Errore", "Devi avere almeno un personaggio nella tua squadra");
             else{
                 bool kombatPossible= true;
                 for(Character* character : *squad){
                     if(character->getMovesNames()=="") kombatPossible=false;
                 }
                 if(kombatPossible) kombatScreen();
-                else QMessageBox::critical(nullptr, "Error", "You must select two Moves for each character of your squad");
+                else QMessageBox::critical(nullptr, "Errore", "Devi selezionare esattamente 2 mosse per ogni personaggio della tua squadra");
             }
         }
     });
@@ -923,17 +869,13 @@ void Gui::kombatScreen() {
     setCentralWidget(kombatWidget);
     delete managementWidget;
 
-    // Crea un layout principale per la finestra di combattimento
     QVBoxLayout *mainLayout = new QVBoxLayout(kombatWidget);
 
-    // Crea un layout orizzontale per la parte superiore della finestra (informazioni sulla squadra)
     QHBoxLayout *topLayout = new QHBoxLayout();
 
-    // Crea una sezione per visualizzare i membri della tua squadra
     QWidget *yourTeamWidget = new QWidget(kombatWidget);
     QVBoxLayout *yourTeamLayout = new QVBoxLayout(yourTeamWidget);
 
-    // Crea una sezione per visualizzare l'avversario
     QWidget *opponentWidget = new QWidget(kombatWidget);
     QVBoxLayout *opponentLayout = new QVBoxLayout(opponentWidget);
 
@@ -947,7 +889,6 @@ void Gui::kombatScreen() {
 
     mainLayout->addLayout(topLayout);
 
-    // Crea un pulsante per l'attacco
     QPushButton *attackButton = new QPushButton("Attacca", kombatWidget);
 
     mainLayout->addWidget(attackButton);
@@ -956,25 +897,22 @@ void Gui::kombatScreen() {
 
     // Crea un pulsante "Esci" più piccolo
     QPushButton *exitButton = new QPushButton("Esci", kombatWidget);
-    exitButton->setFixedSize(80, 30); // Imposta le dimensioni desiderate
+    exitButton->setFixedSize(80, 30);
 
-    // Aggiungi il pulsante "Esci" al layout orizzontale
     exitLayout->addWidget(exitButton, Qt::AlignRight | Qt::AlignBottom);
 
-    // Imposta il layout principale per la finestra di combattimento
     kombatWidget->setLayout(mainLayout);
 
-    // Connetti il pulsante "Attacca" a una funzione per gestire l'attacco
     connect(attackButton, &QPushButton::clicked,[=](){
         int i = attack();
         updateKombatScreen(yourTeamLayout,opponentLayout);
         if(i==1){
-            QMessageBox::warning(nullptr, "Lost", "All the members of your squad died");
+            QMessageBox::warning(nullptr, "SCONFITTA", "Tutti i personaggi della tua squadra sono morti");
             delete battleManager;
             managementScreen();
         }
         if(i==2){
-            QMessageBox::warning(nullptr, "Victory", "You smashed your enemy");
+            QMessageBox::warning(nullptr, "VITTORIA", "Hai sconfitto il tuo avversario");
 
             delete battleManager;
             managementScreen();
