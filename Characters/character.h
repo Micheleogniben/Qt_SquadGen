@@ -44,7 +44,7 @@ public:
     unsigned short getMagDef() const;
     unsigned short getLifePoints() const;
     unsigned short getSpeed() const;
-    virtual unsigned short getWeight() const;
+    unsigned short getWeight() const;
     unsigned short getMaxPS() const;
     unsigned short getBurnign() const;
     bool getAbilityUsed() const;
@@ -53,6 +53,7 @@ public:
     QString getMovesNames() const;
     QString getName() const;
     std::tuple<const Move*, const Move*> getMoves() const;
+    static QString getAbilityDescription();
 
     void setPhyAtk(const unsigned short);
     void setMagAtk(const unsigned short);
