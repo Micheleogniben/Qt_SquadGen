@@ -218,11 +218,10 @@ int Gui::attack(){
 
                 if(!abTar) { attacker->useAbility(nullptr); QMessageBox::warning(nullptr, "Abilitá usata correttamente" , attacker->getName() + " ha usato la sua abilitá"); }
 
-                else if(abTar && abFr) target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target"));
-                else if(abTar && !abFr) target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
+                else if(abTar && abFr){ target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target")); if(target==0) return 0; }
+                else if(abTar && !abFr){ target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target")); if(target==0) return 0; }
 
                 if(target) { attacker->useAbility(target); QMessageBox::warning(nullptr, "Abilitá usata correttamente" , attacker->getName() + " ha usato la sua abilitá su " + target->getName() );}
-                else return 0;
             }
         }
         else return 0;
@@ -509,11 +508,11 @@ void Gui::moveSelection() {
 void Gui::characterSelection(){
 
     QDialog *characterSelectionDialog = new QDialog(this);
-    characterSelectionDialog->setWindowTitle("Seleziona i personaggi da aggiungere alla tua squadra");
+    characterSelectionDialog->setWindowTitle("Seleziona i personaggi da aggiungere alla tua squadra: ");
 
     QVBoxLayout *mainLayout = new QVBoxLayout(characterSelectionDialog);
 
-    QLabel *remainingCapacityLabel = new QLabel("Spazio rimanente per la tua squadra " + QString::number(squad->getCurrentCapacity()));
+    QLabel *remainingCapacityLabel = new QLabel("Spazio rimanente per la tua squadra: " + QString::number(squad->getCurrentCapacity()));
     mainLayout->addWidget(remainingCapacityLabel);
 
     QHash<QString,QPair<int,int>> characterMap; // Map to store character weights per unit and number of occurencies
