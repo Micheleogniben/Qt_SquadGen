@@ -16,8 +16,8 @@ struct StatisticChanges {
 class StatisticMove : public Move
 {
 public:
-    StatisticMove(QString, QString, StatisticChanges, Type);
-    StatisticMove(QString, QString, StatisticChanges, CharType);
+    StatisticMove(QString, QString, StatisticChanges, Type, bool);
+    StatisticMove(QString, QString, StatisticChanges, CharType, bool);
     unsigned short useMove(Character*, Character*) const override;
     bool isFriendly();
 
