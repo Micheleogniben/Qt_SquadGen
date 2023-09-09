@@ -240,17 +240,18 @@ int Gui::attack(){
         else return 0;
     }
     else return 0;
-    qDebug() << move;
     if(move){
-        if(dynamic_cast<DamageMove*>(move)) target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
-        else target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target"));
+
+        if(dynamic_cast<StatisticMove*>(move) && static_cast<StatisticMove*>(move)->isFriendly()){
+            target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target"));
+        }
+        else target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
         if(target){
-            move->useMove(attacker,target);
+            //QMessageBox::warning(nullptr,"Mossa eseguita","Danni inflitti: "+ move->useMove(attacker,target));
             qDebug() << attacker->getName() << " used " << move->getName() << " targeting " << target->getName()  ;
             qDebug() << target->getLifePoints() << "    "<< move->getPhyDmg();
 
             int i=battleManager->update();
-            qDebug()<<i;
             if(i!=0) return i;
         }
     }
