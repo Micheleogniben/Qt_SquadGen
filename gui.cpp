@@ -6,14 +6,6 @@
 void Gui::createMenus()
 {
     QMenuBar *menuBar = new QMenuBar(this);
-    QMenu* helpMenu = new QMenu("Help", this);
-    QAction *helpAction = new QAction("Help", this);
-
-    connect(helpAction, &QAction::triggered, this, &Gui::help);
-
-    helpMenu->addAction(helpAction);
-
-    menuBar->addMenu(helpMenu);
 
     layout()->setMenuBar(menuBar);
 }
