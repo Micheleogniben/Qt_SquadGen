@@ -119,8 +119,8 @@ void BattleManager::opponentKombatLogic() const{
         else move = std::get<1>(attacker->getMoves());
 
         if(attacker && move && target){
-            move->useMove(attacker,target);
             QMessageBox::warning(nullptr, "Attack executed", attacker->getName() + " used " + move->getName() + " targeting " +target->getName());
+            QMessageBox::warning(nullptr,"Mossa eseguita","Danni inflitti: "+ QString::number(move->useMove(attacker,target)));
         }
     }
 }

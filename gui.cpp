@@ -233,33 +233,49 @@ int Gui::attack(){
             move = chooseMove(attacker);
         }
         else if(action==0){
-            bool abilityUsable = attacker->useAbility(0);
-            if(!abilityUsable) QMessageBox::critical(nullptr, "Error", "Ability yet Used");
-            else QMessageBox::warning(nullptr, "Ability used" , attacker->getName() + " used his ability");
+            bool abilityUsed = attacker->getAbilityUsed();
+            if(abilityUsed){ QMessageBox::critical(nullptr, "Error", "Ability yet Used"); return 0;}
+            else{
+                CharType chty = attacker->getCharType();
+                bool abFr, abTar;
+
+                if(chty==CharType::Goblin){ abFr = Goblin::abilityFriendly;  abTar = Goblin::abilityHasTarget;}
+                if(chty==CharType::Knight){ abFr = Knight::abilityFriendly;  abTar = Knight::abilityHasTarget;}
+                if(chty==CharType::Wizard){ abFr = Wizard::abilityFriendly;  abTar = Wizard::abilityHasTarget;}
+                if(chty==CharType::Cleric){ abFr = Cleric::abilityFriendly;  abTar = Cleric::abilityHasTarget;}
+                if(chty==CharType::Dragon){ abFr = Dragon::abilityFriendly;  abTar = Dragon::abilityHasTarget;}
+
+                if(!abTar) { attacker->useAbility(nullptr); QMessageBox::warning(nullptr, "Ability used" , attacker->getName() + " used his ability"); }
+
+                else if(abTar && abFr) target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target"));
+                else if(abTar && !abFr) target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
+
+                if(target) { attacker->useAbility(target); QMessageBox::warning(nullptr, "Ability used" , attacker->getName() + " used his ability on " + target->getName() );}
+                else return 0;
+            }
         }
         else return 0;
     }
-    else return 0;
     if(move){
-
         if(dynamic_cast<StatisticMove*>(move) && static_cast<StatisticMove*>(move)->isFriendly()){
             target = chooseCharacter(battleManager->getTeam(1),QString("Scegli il target"));
         }
         else target = chooseCharacter(battleManager->getTeam(2),QString("Scegli il target"));
         if(target){
-            //QMessageBox::warning(nullptr,"Mossa eseguita","Danni inflitti: "+ move->useMove(attacker,target));
+            QMessageBox::warning(nullptr,"Mossa eseguita","Danni inflitti: "+ QString::number(move->useMove(attacker,target)));
             qDebug() << attacker->getName() << " used " << move->getName() << " targeting " << target->getName()  ;
             qDebug() << target->getLifePoints() << "    "<< move->getPhyDmg();
-
-            int i=battleManager->update();
-            if(i!=0) return i;
         }
     }
-    QMessageBox::warning(nullptr, "Bad News", "Now it's your opponent's turn");
-    battleManager->opponentKombatLogic();
+
     int i=battleManager->update();
     if(i!=0) return i;
+    QMessageBox::warning(nullptr, "Bad News", "Now it's your opponent's turn");
+    battleManager->opponentKombatLogic();
+    i=battleManager->update();
+    if(i!=0) return i;
     battleManager->updateTurn();
+    return 0;
 }
 
 
@@ -430,7 +446,7 @@ int Gui::updateMoves(Character* character) {
     QWidget* scrollContent = new QWidget(&scrollArea);
     QVBoxLayout moveLayout(scrollContent);
 
-    for (Move* move : MovesManager::getCompatibleMoves(character)) {
+    for (Move* move : movesManager->getCompatibleMoves(character)) {
         QVBoxLayout *itemLayout = new QVBoxLayout();
 
         QLabel* moveLabel = new QLabel(move->getName());
@@ -757,24 +773,18 @@ void Gui::startScreen()
     });
 
     connect(loadButton, &QPushButton::clicked, [&]() {
-        try {
-            QString filePath = QFileDialog::getOpenFileName(
-                this,
-                "Seleziona un file",
-                QDir::homePath(),
-                "File JSON (*.json)"
-            );
+        QString filePath = QFileDialog::getOpenFileName(
+            this,
+            "Seleziona un file",
+            QDir::homePath(),
+            "File JSON (*.json)"
+        );
 
-            if (filePath.isEmpty())
-                throw std::runtime_error("Path not selected");
-
+        if (!filePath.isEmpty())
             squad = Parser::loadSquad(filePath);
-            QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
-            managementScreen();
 
-        } catch (const std::exception& e) {
-            QMessageBox::warning(this, "Error", "An error occurred during saving:" + QString(e.what()));
-        }
+        QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
+        managementScreen();
     });
 
     // Add the buttons to the horizontal button layout
@@ -858,22 +868,14 @@ void Gui::managementScreen() {
 
     // Connect button clicks to lambda functions for handling
     connect(saveSquadButton, &QPushButton::clicked, [this]() {
-        try {
-            QString filePath = QFileDialog::getSaveFileName(
-                this,
-                "Seleziona il percorso di salvataggio",
-                QDir::homePath(),  // Directory predefinita iniziale
-                "File JSON (*.json);;Tutti i file (*)"
-            );
-            if (!filePath.isEmpty()){
-                Parser::saveSquad(filePath, *squad);
-                QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
-            } else
-                throw std::runtime_error("Path not selected");
-
-        } catch (const std::exception& e) {
-            QMessageBox::warning(this, "Error", "An error occurred during saving:" + QString(e.what()));
-        }
+        QString filePath = QFileDialog::getSaveFileName(
+            this,
+            "Seleziona il percorso di salvataggio",
+            QDir::homePath(),  // Directory predefinita iniziale
+            "File JSON (*.json);;Tutti i file (*)"
+        );
+        if (!filePath.isEmpty())
+            Parser::saveSquad(filePath, *squad);
     });
 
     connect(editSquadButton, &QPushButton::clicked, [this]() {
@@ -882,23 +884,17 @@ void Gui::managementScreen() {
     });
 
     connect(loadSquadButton, &QPushButton::clicked, [this]() {
-        try {
-            QString filePath = QFileDialog::getOpenFileName(
-                this,
-                "Seleziona un file",
-                QDir::homePath(),
-                "File JSON (*.json)"
-            );
+        QString filePath = QFileDialog::getOpenFileName(
+            this,
+            "Seleziona un file",
+            QDir::homePath(),
+            "File JSON (*.json)"
+        );
 
-            if (!filePath.isEmpty()){
-                squad = Parser::loadSquad(filePath);
-                QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
-            } else
-                throw std::runtime_error("Path not selected");
+        if (!filePath.isEmpty())
+            squad = Parser::loadSquad(filePath);
 
-        } catch (const std::exception& e) {
-            QMessageBox::warning(this, "Error", "An error occurred during saving:" + QString(e.what()));
-        }
+        QMessageBox::information(this, "Squad loaded", "Your Squad has been succesfully loaded!");
     });
 
     connect(startKombatButton, &QPushButton::clicked, [this]() {
