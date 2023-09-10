@@ -355,7 +355,7 @@ void Gui::squadManagement() {
 
         characterGroup.addButton(selectRadio);
 
-        connect(selectRadio, &QRadioButton::clicked, [&](bool checked) {
+        connect(selectRadio, &QRadioButton::clicked, [character,&selectedCharacter](bool checked) {
             if (checked) {
                 selectedCharacter = character;
             }
