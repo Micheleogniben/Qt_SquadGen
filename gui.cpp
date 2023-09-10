@@ -333,7 +333,7 @@ void Gui::squadManagement() {
 
     QButtonGroup characterGroup;
 
-    Character* selectedCharacter=nullptr;
+    Character* selectedCharacter = nullptr;
 
     for (Character* character : *squad) {
         QVBoxLayout* itemLayout = new QVBoxLayout();
@@ -355,9 +355,9 @@ void Gui::squadManagement() {
 
         characterGroup.addButton(selectRadio);
 
-        connect(selectRadio, &QRadioButton::clicked, [&selectedCharacter,&selectRadio,&character,this]() {
-            if (selectRadio->isChecked()) {
-                selectedCharacter=character;
+        connect(selectRadio, &QRadioButton::clicked, [&](bool checked) {
+            if (checked) {
+                selectedCharacter = character;
             }
         });
     }
@@ -373,22 +373,19 @@ void Gui::squadManagement() {
         characterSelection();
         moveSelection();
         characterSelectDialog->close();
-        squadManagement();
+        squadManagement(); // Recursively call squadManagement()
         characterSelectDialog->deleteLater();
         return;
     });
 
     if (characterSelectDialog->exec() == QDialog::Accepted) {
-        if(selectedCharacter)
+        if (selectedCharacter) {
             chooseAction(selectedCharacter);
-        else {
-            characterSelectDialog->deleteLater();
-            return;
         }
     }
     characterSelectDialog->deleteLater();
-    return;
 }
+
 
 
 
