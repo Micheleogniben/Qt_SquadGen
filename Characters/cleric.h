@@ -13,7 +13,7 @@ public:
     bool useAbility(Character*) override;
 
     static QString getAbilityDescription(){
-        return QString("Restaura e raddoppia i Life Points di un tuo compagno di squadra");
+        return QString("Restaura i Life Points di un tuo compagno di squadra");
     }
 
     static const bool abilityFriendly=true;
