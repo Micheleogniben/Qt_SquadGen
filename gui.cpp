@@ -355,7 +355,7 @@ void Gui::squadManagement() {
 
         characterGroup.addButton(selectRadio);
 
-        connect(selectRadio, &QRadioButton::clicked, [character, &selectedCharacter](bool checked) {
+        connect(selectRadio, &QRadioButton::clicked, [&](bool checked) {
             if (checked) {
                 selectedCharacter = character;
             }
@@ -808,6 +808,8 @@ void Gui::managementScreen() {
 
             if (filePath.isEmpty())
                 throw std::runtime_error("Percorso non selezionato!");
+            else if (!filePath.endsWith(".json"))
+                filePath = filePath + ".json";
 
             Parser::saveSquad(filePath, *squad);
             QMessageBox::information(this, "Squadra salvata", "La tua squadra è stata salvata con successo!");
