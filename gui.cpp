@@ -467,6 +467,7 @@ int Gui::updateMoves(Character* character) {
 void Gui::chooseAction(Character* character) {
    QMessageBox confirmBox(QMessageBox::Question, "Conferma Azione", "Vuoi eliminare o modificare le mosse di " + character->getName() + "?", QMessageBox::NoButton, this);
 
+   QPushButton* cancelButton = confirmBox.addButton("Annulla", QMessageBox::RejectRole);
    QPushButton* modifyButton = confirmBox.addButton("Modifica Mosse", QMessageBox::ActionRole);
    QPushButton* deleteButton = confirmBox.addButton("Elimina Personaggio", QMessageBox::YesRole);
 
@@ -483,8 +484,11 @@ void Gui::chooseAction(Character* character) {
    } else if (confirmBox.clickedButton() == deleteButton) {
        squad->deleteByName(character->getName());
        squadManagement();
+   } else if (confirmBox.clickedButton() == cancelButton) {
+       // L'utente ha premuto il pulsante "Annulla", non fare nulla.
    }
 }
+
 
 void Gui::moveSelection() {
 
