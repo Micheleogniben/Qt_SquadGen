@@ -10,8 +10,8 @@ Goblin::Goblin(const Goblin& other) : Character(other), amount(other.amount) { }
 
 // L'abilità dei goblin consiste nell'aumentare del 10% ad ogni turno l'attacco, sia magico che fisico
 bool Goblin::useAbility(Character*){
-    setPhyAtk(getPhyAtk() * 0.1 + getPhyAtk());
-    setMagAtk(getMagAtk() * 0.1 + getMagAtk());
+    setPhyAtk(getPhyAtk() * 0.4 + getPhyAtk());
+    setMagAtk(getMagAtk() * 0.4 + getMagAtk());
     setAbilityUsed(true);
     return true;
 }
