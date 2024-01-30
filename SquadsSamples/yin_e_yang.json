@@ -1,0 +1,16 @@
+{
+    "characters": [
+        {
+            "characterType": "Knight",
+            "move1": "Backstab",
+            "move2": "Charge",
+            "name": "Edgar"
+        },
+        {
+            "characterType": "Dragon",
+            "move1": "Dragon Breath",
+            "move2": "Inferno",
+            "name": "Spheryx"
+        }
+    ]
+}
